@@ -31,7 +31,7 @@ JuaKali Konnect is a platform that connects skilled Kenyan artisans ("fundis") w
 This is a static website with no server required.
 1. Download or clone the project files.
 2. Open `index.html` in your web browser.
-3. Explore the site!
+3. Navigate the website.
 
 ## Contact
 For questions, visit the "Contact Us" page or email info@juakalikonnect.com.
