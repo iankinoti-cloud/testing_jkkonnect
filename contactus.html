@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Us | JuaKali Konnect</title>
+   <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+ <link rel="stylesheet" href="style.css">
+<link rel="icon" href="Juakalikonnect.jpeg">
+
+</head>
+<body> 
+
+<header>
+    <nav>
+        <div class="logo">
+            <h1>Jua Kali<span> Konnect</span></h1>
+        </div> 
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="hireworkers.html">Hire Fundis</a></li>
+            <li><a href="aboutus.html">About Us</a></li>
+            <li><a href="contactus.html" class="active">Contact Us</a></li>
+        </ul>
+        <div class="auth-buttons">
+            <button type="button">Login</button>
+            <button type="button">Sign Up</button>
+        </div>                 
+    </nav>
+
+    <h1>Contact Us!</h1>
+    <p>Have a question or want to hire a skilled fundi? Reach out to us!</p>
+</header>
+
+<main class="contact-container reveal">
+
+    <section class="contact-form-section">
+        <h2>Send Us a Message</h2>
+        <p class="service-note">Typical response time: within 2 business hours.</p>
+
+        <form>
+            <label for="name">Your Name:</label>
+            <input type="text" id="name" placeholder="Enter your name" required>
+
+            <label for="email">Your Email:</label>
+            <input type="email" id="email" placeholder="Enter your email" required>
+
+            <label for="message">Message:</label>
+            <textarea id="message" rows="5" placeholder="Write your message here" required></textarea>
+
+            <button type="submit">Send Message</button>
+        </form>
+    </section>
+
+    <section class="contact-info-section reveal">
+        <h2>Other Ways to Reach Us!</h2>
+        <div class="contact-method-grid">
+            <article class="contact-method-card">
+                <h3>Email</h3>
+                <p>info@juakalikonnect.com</p>
+            </article>
+            <article class="contact-method-card">
+                <h3>Phone</h3>
+                <p>0112555555</p>
+            </article>
+            <article class="contact-method-card">
+                <h3>Location</h3>
+                <p>Nairobi, Kenya</p>
+            </article>
+        </div>
+    </section>
+
+</main>
+
+<footer>
+    <p>&copy;2026 JuaKali Konnect. All rights reserved</p>
+</footer>
+
+<div class="mobile-sticky-cta">
+    <a href="hireworkers.html">Find Fundis</a>
+</div>
+
+<script src="main.js"></script>
+
+</body>
+</html>

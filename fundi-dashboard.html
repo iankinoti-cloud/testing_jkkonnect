@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fundi Dashboard | JuaKali Konnect</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="Juakalikonnect.jpeg">
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo">
+                <h1>Jua Kali<span> Konnect</span></h1>
+            </div>
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="hireworkers.html">Hire Fundis</a></li>
+                <li><a href="aboutus.html">About Us</a></li>
+                <li><a href="contactus.html">Contact Us</a></li>
+            </ul>
+            <div class="auth-buttons">
+                <button type="button">Login</button>
+                <button type="button">Sign Up</button>
+            </div>
+        </nav>
+
+        <h1>Fundi Dashboard</h1>
+        <p>Manage your professional profile and portfolio.</p>
+    </header>
+
+    <main class="profile-page" data-fundi-page>
+        <p class="profile-status" data-profile-status>Loading dashboard...</p>
+
+        <section class="profile-card">
+            <h2>Account Details</h2>
+            <form data-account-form>
+                <div class="profile-photo-block">
+                    <img data-profile-photo-preview alt="Profile preview" class="profile-photo-preview">
+                    <label for="profile-photo-input">Profile Photo</label>
+                    <input type="file" id="profile-photo-input" accept="image/*">
+                </div>
+
+                <label for="profile-fullname">Full Name</label>
+                <input type="text" id="profile-fullname" required>
+
+                <label for="profile-email">Email</label>
+                <input type="email" id="profile-email" readonly>
+
+                <label for="profile-phone">Phone Number</label>
+                <input type="tel" id="profile-phone" placeholder="e.g 0712345678">
+
+                <label for="profile-location">Location</label>
+                <input type="text" id="profile-location" placeholder="City / Area">
+
+                <button type="submit">Save Account Profile</button>
+                <p class="profile-message" data-profile-message></p>
+            </form>
+        </section>
+
+        <section class="profile-card" data-fundi-section>
+            <h2>Fundi Professional Profile</h2>
+
+            <label for="fundi-profile-skill">Primary Skill</label>
+            <input type="text" id="fundi-profile-skill" placeholder="e.g Welder">
+
+            <label for="fundi-profile-experience">Experience</label>
+            <input type="text" id="fundi-profile-experience" placeholder="e.g 9 years">
+
+            <label for="fundi-profile-availability">Availability</label>
+            <input type="text" id="fundi-profile-availability" placeholder="e.g Available this week">
+
+            <label for="fundi-profile-rate">Service Rate</label>
+            <input type="text" id="fundi-profile-rate" placeholder="e.g KES 1,500 - 6,000 per project">
+
+            <button type="button" data-fundi-profile-save>Save Professional Details</button>
+            <p class="profile-message" data-fundi-profile-message></p>
+
+            <hr class="profile-divider">
+
+            <h3>Portfolio Photos</h3>
+            <p class="profile-helper">Add photos of your previous work to appear in your hire profile.</p>
+
+            <label for="portfolio-photo-input">Work Photo</label>
+            <input type="file" id="portfolio-photo-input" accept="image/*">
+
+            <label for="portfolio-caption-input">Caption</label>
+            <input type="text" id="portfolio-caption-input" placeholder="e.g Kitchen cabinet installation">
+
+            <button type="button" data-add-portfolio-item>Add Portfolio Photo</button>
+
+            <div class="profile-gallery" data-portfolio-list></div>
+        </section>
+    </main>
+
+    <script src="main.js"></script>
+</body>
+</html>

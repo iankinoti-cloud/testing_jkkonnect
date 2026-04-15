@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile | JuaKali Konnect</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="Juakalikonnect.jpeg">
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo">
+                <h1>Jua Kali<span> Konnect</span></h1>
+            </div>
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="hireworkers.html">Hire Fundis</a></li>
+                <li><a href="aboutus.html">About Us</a></li>
+                <li><a href="contactus.html">Contact Us</a></li>
+            </ul>
+            <div class="auth-buttons">
+                <button type="button">Login</button>
+                <button type="button">Sign Up</button>
+            </div>
+        </nav>
+
+        <h1>Client Profile</h1>
+        <p>Manage your account details and contact information.</p>
+    </header>
+
+    <main class="profile-page" data-profile-page>
+        <p class="profile-status" data-profile-status>Loading profile...</p>
+
+        <section class="profile-card">
+            <h2>Account Details</h2>
+            <form data-account-form>
+                <div class="profile-photo-block">
+                    <img data-profile-photo-preview alt="Profile preview" class="profile-photo-preview">
+                    <label for="profile-photo-input">Profile Photo</label>
+                    <input type="file" id="profile-photo-input" accept="image/*">
+                </div>
+
+                <label for="profile-fullname">Full Name</label>
+                <input type="text" id="profile-fullname" required>
+
+                <label for="profile-email">Email</label>
+                <input type="email" id="profile-email" readonly>
+
+                <label for="profile-phone">Phone Number</label>
+                <input type="tel" id="profile-phone" placeholder="e.g 0712345678">
+
+                <label for="profile-location">Location</label>
+                <input type="text" id="profile-location" placeholder="City / Area">
+
+                <button type="submit">Save Account Profile</button>
+                <p class="profile-message" data-profile-message></p>
+            </form>
+        </section>
+
+        <section class="profile-card">
+            <h2>Client Activity</h2>
+            <p class="profile-helper">This is your client-only profile space. Fundi professional tools are available in the Fundi Dashboard.</p>
+        </section>
+    </main>
+
+    <script src="main.js"></script>
+</body>
+</html>
