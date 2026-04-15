@@ -1,6 +1,6 @@
 # JuaKali Konnect
 
-## Overview
+## What is  Jua Kali Konnect?
 JuaKali Konnect is a platform that connects skilled Kenyan artisans ("fundis") with clients who need services like plumbing, welding, carpentry, and more. It helps local workers find jobs and makes it easy for people to hire trusted professionals.
 
 ## Features
