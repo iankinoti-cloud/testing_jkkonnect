@@ -4,6 +4,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initFundiDashboardPage();
   initRevealAnimation();
   initTrustMetricsTypewriter();
+  initAboutFeaturesInteractivity();
   initHomeSearchRedirect();
   initFundiRegistration();
   initHireWorkersSearchFilter();
@@ -1384,12 +1385,6 @@ function initTrustMetricsTypewriter() {
       valueEl.textContent = '';
       animateMetric(valueEl, index * 180);
     });
-
-    loopTimer = window.setTimeout(() => {
-      if (isVisible) {
-        playAnimation();
-      }
-    }, cycleMs);
   };
 
   if (prefersReducedMotion) {
@@ -1423,6 +1418,104 @@ function initTrustMetricsTypewriter() {
   );
 
   observer.observe(section);
+}
+
+function initAboutFeaturesInteractivity() {
+  const section = document.querySelector('.about-features');
+  if (!section) return;
+
+  const cards = Array.from(section.querySelectorAll('.feature-card'));
+  const expandableCards = Array.from(section.querySelectorAll('[data-expand-card]'));
+  const stepItems = Array.from(section.querySelectorAll('[data-step-item]'));
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  if (!cards.length) return;
+
+  const showCards = () => {
+    cards.forEach((card, index) => {
+      const delay = prefersReducedMotion ? 0 : index * 120;
+      window.setTimeout(() => card.classList.add('is-visible'), delay);
+    });
+  };
+
+  if (prefersReducedMotion || !('IntersectionObserver' in window)) {
+    showCards();
+  } else {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry.isIntersecting) return;
+        showCards();
+        observer.disconnect();
+      },
+      { threshold: 0.25 }
+    );
+
+    observer.observe(section);
+  }
+
+  const coarsePointer = window.matchMedia('(hover: none), (pointer: coarse)').matches;
+
+  const collapseExpandableCards = () => {
+    expandableCards.forEach((card) => card.classList.remove('is-expanded'));
+  };
+
+  expandableCards.forEach((card) => {
+    card.addEventListener('click', () => {
+      if (!coarsePointer) return;
+      const shouldExpand = !card.classList.contains('is-expanded');
+      collapseExpandableCards();
+      if (shouldExpand) card.classList.add('is-expanded');
+    });
+
+    card.addEventListener('mouseenter', () => {
+      if (coarsePointer) return;
+      card.classList.add('is-expanded');
+    });
+
+    card.addEventListener('mouseleave', () => {
+      if (coarsePointer) return;
+      card.classList.remove('is-expanded');
+    });
+
+    card.addEventListener('focusin', () => {
+      card.classList.add('is-expanded');
+    });
+
+    card.addEventListener('focusout', (event) => {
+      if (card.contains(event.relatedTarget)) return;
+      if (!coarsePointer) card.classList.remove('is-expanded');
+    });
+
+    card.addEventListener('keydown', (event) => {
+      if (event.key !== 'Enter' && event.key !== ' ') return;
+      event.preventDefault();
+      const shouldExpand = !card.classList.contains('is-expanded');
+      collapseExpandableCards();
+      if (shouldExpand) card.classList.add('is-expanded');
+    });
+  });
+
+  if (!stepItems.length) return;
+
+  const setActiveStep = (stepToActivate) => {
+    stepItems.forEach((stepItem) => {
+      stepItem.classList.toggle('is-active', stepItem === stepToActivate);
+    });
+  };
+
+  setActiveStep(stepItems[0]);
+
+  stepItems.forEach((stepItem) => {
+    stepItem.addEventListener('mouseenter', () => setActiveStep(stepItem));
+    stepItem.addEventListener('focusin', () => setActiveStep(stepItem));
+    stepItem.addEventListener('click', () => setActiveStep(stepItem));
+
+    stepItem.addEventListener('keydown', (event) => {
+      if (event.key !== 'Enter' && event.key !== ' ') return;
+      event.preventDefault();
+      setActiveStep(stepItem);
+    });
+  });
 }
 
 function initHomeSearchRedirect() {
