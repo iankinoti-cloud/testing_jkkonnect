@@ -1311,10 +1311,8 @@ function initTrustMetricsTypewriter() {
   const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const timers = new Set();
   const rafs = new Set();
-  const cycleMs = 3000;
-  const animationMs = 1650;
-  let loopTimer = null;
-  let isVisible = false;
+  const animationMs = 1400;
+  let hasAnimatedInView = false;
 
   const clearTimers = () => {
     timers.forEach((timerId) => window.clearTimeout(timerId));
@@ -1322,11 +1320,6 @@ function initTrustMetricsTypewriter() {
 
     rafs.forEach((frameId) => window.cancelAnimationFrame(frameId));
     rafs.clear();
-
-    if (loopTimer) {
-      window.clearTimeout(loopTimer);
-      loopTimer = null;
-    }
   };
 
   const easeOutCubic = (progress) => 1 - Math.pow(1 - progress, 3);
@@ -1340,7 +1333,6 @@ function initTrustMetricsTypewriter() {
     clearTimers();
 
     values.forEach((valueEl) => {
-      valueEl.classList.remove('is-typing');
       valueEl.classList.remove('is-active');
       valueEl.closest('.metric-card')?.classList.remove('is-active');
       valueEl.textContent = prefersReducedMotion ? valueEl.dataset.metricValue || '' : '';
@@ -1350,23 +1342,17 @@ function initTrustMetricsTypewriter() {
   const animateMetric = (valueEl, startDelay) => {
     const beginTimer = window.setTimeout(() => {
       const targetCount = Number(valueEl.dataset.metricCount || 0);
-      const targetText = valueEl.dataset.metricValue || valueEl.textContent.trim();
       const card = valueEl.closest('.metric-card');
       const startTime = performance.now();
 
-      valueEl.classList.add('is-typing', 'is-active');
+      valueEl.classList.add('is-active');
       card?.classList.add('is-active');
 
       const render = (now) => {
         const progress = Math.min((now - startTime) / animationMs, 1);
         const easedProgress = easeOutCubic(progress);
         const currentCount = targetCount * easedProgress;
-        const countText = formatMetricValue(valueEl, currentCount);
-        const minChars = Math.max(1, Math.floor(progress * targetText.length));
-        const targetChars = progress > 0.72 ? targetText.length : minChars;
-        const visibleLength = Math.max(countText.length, targetChars);
-
-        valueEl.textContent = targetText.slice(0, visibleLength);
+        valueEl.textContent = formatMetricValue(valueEl, currentCount);
 
         if (progress < 1) {
           const frameId = window.requestAnimationFrame(render);
@@ -1374,13 +1360,12 @@ function initTrustMetricsTypewriter() {
           return;
         }
 
-        valueEl.textContent = targetText;
+        valueEl.textContent = valueEl.dataset.metricValue || formatMetricValue(valueEl, targetCount);
 
         const finishTimer = window.setTimeout(() => {
-          valueEl.classList.remove('is-typing');
           valueEl.classList.remove('is-active');
           card?.classList.remove('is-active');
-        }, 420);
+        }, 260);
 
         timers.add(finishTimer);
       };
@@ -1422,14 +1407,14 @@ function initTrustMetricsTypewriter() {
   const observer = new IntersectionObserver(
     ([entry]) => {
       if (entry.isIntersecting) {
-        if (!isVisible) {
-          isVisible = true;
+        if (!hasAnimatedInView) {
+          hasAnimatedInView = true;
           playAnimation();
         }
         return;
       }
 
-      isVisible = false;
+      hasAnimatedInView = false;
       resetValues();
     },
     {
