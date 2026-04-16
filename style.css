@@ -1802,6 +1802,111 @@ footer p {
     margin-left: 4px;
 }
 
+.site-locked {
+    overflow: hidden;
+}
+
+.site-lock-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 2200;
+    background: rgba(15, 23, 42, 0.74);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 18px;
+}
+
+.site-lock-card {
+    width: 100%;
+    max-width: 460px;
+    background: var(--surface-white);
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-md);
+    padding: 24px;
+    animation: cardEnter 0.25s ease;
+}
+
+.site-lock-card-danger {
+    border-color: #ef4444;
+    box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.16), 0 16px 35px -20px rgba(127, 29, 29, 0.6);
+    animation: siteLockShake 0.38s ease;
+}
+
+.site-lock-card-lockdown {
+    border-color: #991b1b;
+    background: linear-gradient(180deg, #fff6f6 0%, #ffe9e9 100%);
+    box-shadow: 0 0 0 4px rgba(153, 27, 27, 0.16), 0 24px 45px -26px rgba(127, 29, 29, 0.8);
+}
+
+.site-lock-card-lockdown h2 {
+    color: #991b1b;
+}
+
+.site-lock-card h2 {
+    margin: 0 0 8px;
+    text-align: left;
+    font-size: 1.5rem;
+}
+
+.site-lock-card p {
+    margin: 0 0 14px;
+    color: var(--text-muted);
+}
+
+.site-lock-card form {
+    margin: 0;
+    max-width: 100%;
+    border: none;
+    box-shadow: none;
+    background: transparent;
+    padding: 0;
+    gap: 10px;
+}
+
+.site-lock-card input {
+    background: var(--surface-white);
+}
+
+.site-lock-card button {
+    background: var(--brand-orange);
+    color: var(--surface-white);
+    border: none;
+    padding: 12px;
+    border-radius: 8px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.site-lock-card button:hover {
+    background: var(--brand-orange-hover);
+}
+
+.site-lock-card button:disabled,
+.site-lock-card input:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.site-lock-feedback {
+    min-height: 22px;
+    margin: 10px 0 0;
+    color: #9a3412;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+@keyframes siteLockShake {
+    0% { transform: translateX(0); }
+    20% { transform: translateX(-8px); }
+    40% { transform: translateX(7px); }
+    60% { transform: translateX(-5px); }
+    80% { transform: translateX(4px); }
+    100% { transform: translateX(0); }
+}
+
 /* =========================================
    RESPONSIVE LOGIC
    ========================================= */

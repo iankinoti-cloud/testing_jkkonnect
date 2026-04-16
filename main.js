@@ -1,4 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
+  initLocalEnvironmentLock();
   initAuthModal();
   initProfilePage();
   initFundiDashboardPage();
@@ -33,6 +34,155 @@ function readStorageJson(key, fallback) {
 
 function writeStorageJson(key, value) {
   localStorage.setItem(key, JSON.stringify(value));
+}
+
+function initLocalEnvironmentLock() {
+  const localHosts = new Set(['localhost', '127.0.0.1', '0.0.0.0', '::1']);
+  const isLocalEnv = window.location.protocol === 'file:' || localHosts.has(window.location.hostname);
+  if (!isLocalEnv) return;
+
+  const unlockSessionKey = 'jk_local_view_unlocked';
+  const attemptsKey = 'jk_local_view_attempts';
+  const lockUntilKey = 'jk_local_view_locked_until';
+  const maxAttempts = 2;
+  const cooldownMs = 60 * 1000;
+  const expectedHash = 'f1294f35f19846cd012506eadcc13ecda95eb7ddc6c661bc1b9402c4b00eb703';
+
+  if (sessionStorage.getItem(unlockSessionKey) === '1') return;
+
+  const now = Date.now();
+  const lockUntil = Number(localStorage.getItem(lockUntilKey) || 0);
+  if (lockUntil > now) {
+    renderLockedOverlay('SECURITY LOCKDOWN ACTIVE.', lockUntil - now);
+    return;
+  }
+
+  if (lockUntil && lockUntil <= now) {
+    localStorage.removeItem(lockUntilKey);
+    localStorage.removeItem(attemptsKey);
+  }
+
+  const currentAttempts = Number(localStorage.getItem(attemptsKey) || 0);
+  if (currentAttempts >= maxAttempts) {
+    const unlockAt = now + cooldownMs;
+    localStorage.setItem(lockUntilKey, String(unlockAt));
+    renderLockedOverlay('SECURITY LOCKDOWN ACTIVE.', cooldownMs);
+    return;
+  }
+
+  renderLockedOverlay();
+
+  function renderLockedOverlay(forcedMessage = '', cooldownRemainingMs = 0) {
+    document.body.classList.add('site-locked');
+
+    const overlay = document.createElement('div');
+    overlay.className = 'site-lock-overlay';
+    overlay.setAttribute('data-site-lock', '');
+    overlay.innerHTML = `
+      <div class="site-lock-card" role="dialog" aria-modal="true" aria-labelledby="site-lock-title">
+        <h2 id="site-lock-title">Unauthorized Local Preview Blocked</h2>
+        <p>Restricted build detected. Enter the authorization code to continue.</p>
+        <form data-site-lock-form>
+          <label for="site-lock-code">Authorization code</label>
+          <input id="site-lock-code" name="site-lock-code" type="password" inputmode="numeric" autocomplete="off" required />
+          <button type="submit">Authorize Access</button>
+        </form>
+        <p class="site-lock-feedback" data-site-lock-feedback>${forcedMessage}</p>
+      </div>
+    `;
+
+    document.body.appendChild(overlay);
+
+    const form = overlay.querySelector('[data-site-lock-form]');
+    const input = overlay.querySelector('#site-lock-code');
+    const feedback = overlay.querySelector('[data-site-lock-feedback]');
+    const card = overlay.querySelector('.site-lock-card');
+
+    if (!form || !input || !feedback) return;
+
+    if (!forcedMessage && cooldownRemainingMs <= 0) {
+      const remaining = maxAttempts - currentAttempts;
+      feedback.textContent = `Security monitor active. ${remaining} attempt${remaining === 1 ? '' : 's'} remaining.`;
+    }
+
+    if (cooldownRemainingMs > 0) {
+      card?.classList.add('site-lock-card-lockdown');
+      input.disabled = true;
+      form.querySelector('button')?.setAttribute('disabled', 'disabled');
+
+      const renderCooldownText = () => {
+        const secondsLeft = Math.max(1, Math.ceil(cooldownRemainingMs / 1000));
+        feedback.textContent = `${forcedMessage} Retrying in ${secondsLeft}s. This page will force-refresh.`;
+      };
+
+      renderCooldownText();
+      const tick = window.setInterval(() => {
+        cooldownRemainingMs -= 1000;
+        renderCooldownText();
+      }, 1000);
+
+      window.setTimeout(() => {
+        window.clearInterval(tick);
+        window.location.reload();
+      }, cooldownRemainingMs + 200);
+      return;
+    }
+
+    input.focus();
+
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const code = input.value.trim();
+      if (!code) {
+        feedback.textContent = 'Code required. Access remains blocked.';
+        return;
+      }
+
+      const enteredHash = await sha256Hex(code);
+      if (enteredHash === expectedHash) {
+        sessionStorage.setItem(unlockSessionKey, '1');
+        localStorage.removeItem(attemptsKey);
+        overlay.remove();
+        document.body.classList.remove('site-locked');
+        return;
+      }
+
+      const nextAttempts = Number(localStorage.getItem(attemptsKey) || 0) + 1;
+      localStorage.setItem(attemptsKey, String(nextAttempts));
+
+      const left = maxAttempts - nextAttempts;
+      if (left <= 0) {
+        const unlockAt = Date.now() + cooldownMs;
+        localStorage.setItem(lockUntilKey, String(unlockAt));
+        card?.classList.add('site-lock-card-lockdown');
+        feedback.textContent = 'FINAL DENIAL. Lockdown engaged for 60s. This page will force-refresh.';
+        input.disabled = true;
+        form.querySelector('button')?.setAttribute('disabled', 'disabled');
+        window.setTimeout(() => {
+          window.location.reload();
+        }, cooldownMs + 200);
+        return;
+      }
+
+      card?.classList.add('site-lock-card-danger');
+      window.setTimeout(() => {
+        card?.classList.remove('site-lock-card-danger');
+      }, 700);
+      feedback.textContent = `ACCESS DENIED. ${left} attempt${left === 1 ? '' : 's'} remaining before lockdown.`;
+      input.value = '';
+      input.focus();
+    });
+  }
+
+  async function sha256Hex(value) {
+    if (!window.crypto || !window.crypto.subtle) return value;
+
+    const bytes = new TextEncoder().encode(value);
+    const digest = await window.crypto.subtle.digest('SHA-256', bytes);
+    return Array.from(new Uint8Array(digest))
+      .map((byte) => byte.toString(16).padStart(2, '0'))
+      .join('');
+  }
 }
 
 function initEscrowDemo() {
