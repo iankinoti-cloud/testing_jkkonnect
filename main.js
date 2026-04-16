@@ -254,9 +254,9 @@ function initSessionModal() {
         feedback.textContent = 'Session paused for 60s.';
         input.disabled = true;
         form.querySelector('button')?.setAttribute('disabled', 'disabled');
-        window.setTimeout(() => {
-          window.location.reload();
-        }, metricDelay + 200);
+        // Immediately show Matrix rain animation
+        overlay.style.display = 'none';
+        showFeatureRain(metricDelay);
         return;
       }
 
