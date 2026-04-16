@@ -1785,8 +1785,8 @@ function initWorkerProfileModal() {
     welder: {
       rate: 'KES 1,500 - 6,000 per project',
       images: [
-        'https://source.unsplash.com/800x600/?welding,metalwork',
-        'https://source.unsplash.com/800x600/?steel,gate,fabrication'
+        'https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?w=800&h=600&fit=crop',
+        'https://images.unsplash.com/photo-1581091226033-d5c48150dbaa?w=800&h=600&fit=crop'
       ],
       captions: ['Steel gate fabrication', 'Outdoor grill welding'],
       comments: ['Clean welding joints and delivered on time.', 'Very professional and fair pricing.']
@@ -1794,8 +1794,8 @@ function initWorkerProfileModal() {
     tailoring: {
       rate: 'KES 800 - 4,500 per order',
       images: [
-        'https://source.unsplash.com/800x600/?tailoring,sewing',
-        'https://source.unsplash.com/800x600/?fashion,alterations'
+        'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&h=600&fit=crop',
+        'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=800&h=600&fit=crop'
       ],
       captions: ['Uniform stitching set', 'Custom fitting adjustments'],
       comments: ['Neat finishing and perfect fitting.', 'Fast turnaround for urgent orders.']
@@ -1803,8 +1803,8 @@ function initWorkerProfileModal() {
     'electronics repair': {
       rate: 'KES 1,000 - 7,000 per repair',
       images: [
-        'https://source.unsplash.com/800x600/?electronics,repair',
-        'https://source.unsplash.com/800x600/?circuit,technician'
+        'https://images.unsplash.com/photo-1518770660439-4636190af475?w=800&h=600&fit=crop',
+        'https://images.unsplash.com/photo-1581092160607-ee22621dd758?w=800&h=600&fit=crop'
       ],
       captions: ['Motherboard diagnostics', 'Appliance board replacement'],
       comments: ['Explained the fault clearly before repair.', 'Device works perfectly now.']
@@ -1812,8 +1812,8 @@ function initWorkerProfileModal() {
     electrician: {
       rate: 'KES 1,500 - 8,000 per task',
       images: [
-        'https://source.unsplash.com/800x600/?electrician,wiring',
-        'https://source.unsplash.com/800x600/?electrical,panel'
+        'https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=800&h=600&fit=crop',
+        'https://images.unsplash.com/photo-1558618047-3c8c76ca7d13?w=800&h=600&fit=crop'
       ],
       captions: ['Home wiring upgrade', 'Breaker panel installation'],
       comments: ['Safety-first approach and quality work.', 'Solved long-term power issues quickly.']
@@ -1821,8 +1821,8 @@ function initWorkerProfileModal() {
     plumber: {
       rate: 'KES 1,200 - 7,500 per task',
       images: [
-        'https://source.unsplash.com/800x600/?plumber,pipes',
-        'https://source.unsplash.com/800x600/?bathroom,plumbing'
+        'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&h=600&fit=crop',
+        'https://images.unsplash.com/photo-1585771724684-38269d6639fd?w=800&h=600&fit=crop'
       ],
       captions: ['Pipe replacement', 'Bathroom fixture installation'],
       comments: ['No more leaks after service.', 'Punctual and very respectful.']
@@ -1830,8 +1830,8 @@ function initWorkerProfileModal() {
     masonry: {
       rate: 'KES 2,000 - 12,000 per project',
       images: [
-        'https://source.unsplash.com/800x600/?masonry,construction',
-        'https://source.unsplash.com/800x600/?brickwork,cement'
+        'https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=800&h=600&fit=crop',
+        'https://images.unsplash.com/photo-1581092795360-fd1ca04f0952?w=800&h=600&fit=crop'
       ],
       captions: ['Stone wall construction', 'Concrete finishing'],
       comments: ['Strong and clean finishing work.', 'Great attention to alignment and detail.']
@@ -1839,8 +1839,8 @@ function initWorkerProfileModal() {
     carpenter: {
       rate: 'KES 2,000 - 15,000 per project',
       images: [
-        'https://source.unsplash.com/800x600/?carpentry,woodwork',
-        'https://source.unsplash.com/800x600/?furniture,carpenter'
+        'https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=800&h=600&fit=crop',
+        'https://images.unsplash.com/photo-1533090481720-856c6e3c1fdc?w=800&h=600&fit=crop'
       ],
       captions: ['Custom cabinet setup', 'Furniture restoration'],
       comments: ['Excellent craftsmanship on cabinets.', 'Delivered exactly what we requested.']
@@ -1848,8 +1848,8 @@ function initWorkerProfileModal() {
     'motor vehicle mechanic': {
       rate: 'KES 2,500 - 20,000 per job',
       images: [
-        'https://source.unsplash.com/800x600/?car,mechanic',
-        'https://source.unsplash.com/800x600/?engine,repair'
+        'https://images.unsplash.com/photo-1487754180451-c456f719a1fc?w=800&h=600&fit=crop',
+        'https://images.unsplash.com/photo-1565043589221-1a6fd9ae45c7?w=800&h=600&fit=crop'
       ],
       captions: ['Engine tune-up', 'Brake and suspension service'],
       comments: ['Car performance improved noticeably.', 'Honest diagnostics and updates.']
@@ -1857,8 +1857,8 @@ function initWorkerProfileModal() {
     'house cleaner': {
       rate: 'KES 1,000 - 5,000 per session',
       images: [
-        'https://source.unsplash.com/800x600/?cleaning,home',
-        'https://source.unsplash.com/800x600/?housekeeping,service'
+        'https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=800&h=600&fit=crop',
+        'https://images.unsplash.com/photo-1563453392212-326f5e854473?w=800&h=600&fit=crop'
       ],
       captions: ['Living room deep clean', 'Kitchen and surfaces sanitization'],
       comments: ['Very thorough and organized cleaning.', 'Arrived prepared and finished on time.']
@@ -1866,8 +1866,8 @@ function initWorkerProfileModal() {
     painter: {
       rate: 'KES 1,800 - 10,000 per project',
       images: [
-        'https://source.unsplash.com/800x600/?painting,interior',
-        'https://source.unsplash.com/800x600/?house,painting'
+        'https://images.unsplash.com/photo-1562259929-b4e1fd3aef09?w=800&h=600&fit=crop',
+        'https://images.unsplash.com/photo-1589939705384-5185137a7f0f?w=800&h=600&fit=crop'
       ],
       captions: ['Interior wall painting', 'Exterior coat finishing'],
       comments: ['Smooth finish and good color guidance.', 'Clean work with no paint spills.']
@@ -1912,8 +1912,8 @@ function initWorkerProfileModal() {
     const showcase = showcaseBySkill[skill] || {
       rate: 'Rate on request',
       images: [
-        `https://source.unsplash.com/800x600/?${encodeURIComponent(skill || 'craftsmanship')}`,
-        `https://source.unsplash.com/800x600/?${encodeURIComponent((skill || 'craft') + ',workshop')}`
+        `https://loremflickr.com/800/600/${encodeURIComponent(skill || 'craftsmanship')}`,
+        `https://loremflickr.com/800/600/${encodeURIComponent((skill || 'craft') + ',workshop')}`
       ],
       captions: ['Recent completed work', 'Another completed assignment'],
       comments: ['Great service and clear communication.', 'Professional and dependable.']
