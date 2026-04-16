@@ -1,3 +1,25 @@
+/* Matrix rain overlay for lockout */
+.matrix-rain-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: #000;
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.matrix-timer {
+    position: fixed;
+    top: 20px;
+    right: 40px;
+    color: #00FF41;
+    font: bold 2rem monospace;
+    z-index: 10001;
+    text-shadow: 0 0 8px #00FF41, 0 0 2px #000;
+}
 /* ==========================================================================
    JUA KALI KONNECT - ENTERPRISE STYLESHEET
    "The Imarati Upgrade"

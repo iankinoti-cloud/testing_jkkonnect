@@ -130,26 +130,67 @@ function initSessionModal() {
     }
 
     if (cooldownRemainingMs > 0) {
-      card?.classList.add('site-lock-card-lockdown');
-      input.disabled = true;
-      form.querySelector('button')?.setAttribute('disabled', 'disabled');
+      //modal and show feature animation
+      overlay.style.display = 'none';
+      showFeatureRain(cooldownRemainingMs);
+      return;
+    }
 
-      const renderCooldownText = () => {
-        const secondsLeft = Math.max(1, Math.ceil(cooldownRemainingMs / 1000));
-        feedback.textContent = `${forcedMessage} Please wait ${secondsLeft}s.`;
-      };
+    //  animation
+    function showFeatureRain(durationMs) {
+      let featureOverlay = document.createElement('div');
+      featureOverlay.className = 'matrix-rain-overlay';
+      featureOverlay.innerHTML = `<canvas id="feature-rain-canvas" style="display:block;width:100vw;height:100vh;"></canvas><div class="matrix-timer"></div>`;
+      document.body.appendChild(featureOverlay);
 
-      renderCooldownText();
-      const tick = window.setInterval(() => {
-        cooldownRemainingMs -= 1000;
-        renderCooldownText();
+      const canvas = featureOverlay.querySelector('#feature-rain-canvas');
+      const timerDiv = featureOverlay.querySelector('.matrix-timer');
+      const ctx = canvas.getContext('2d');
+      let width = window.innerWidth;
+      let height = window.innerHeight;
+      canvas.width = width;
+      canvas.height = height;
+
+      let fontSize = 18;
+      let columns = Math.floor(width / fontSize);
+      let drops = Array(columns).fill(1);
+
+      function drawFeature() {
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.08)';
+        ctx.fillRect(0, 0, width, height);
+        ctx.font = fontSize + 'px monospace';
+        ctx.fillStyle = '#00FF41';
+        for (let i = 0; i < drops.length; i++) {
+          let text = Math.random() > 0.5 ? '0' : '1';
+          ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+          if (drops[i] * fontSize > height && Math.random() > 0.975) {
+            drops[i] = 0;
+          }
+          drops[i]++;
+        }
+      }
+
+      let animation = setInterval(drawFeature, 50);
+      let secondsLeft = Math.ceil(durationMs / 1000);
+      timerDiv.style.position = 'fixed';
+      timerDiv.style.top = '20px';
+      timerDiv.style.right = '40px';
+      timerDiv.style.color = '#00FF41';
+      timerDiv.style.font = 'bold 2rem monospace';
+      timerDiv.style.zIndex = '10001';
+      timerDiv.textContent = `Please wait: ${secondsLeft}s`;
+
+      let timer = setInterval(() => {
+        secondsLeft--;
+        timerDiv.textContent = `Please wait: ${secondsLeft}s`;
       }, 1000);
 
       window.setTimeout(() => {
-        window.clearInterval(tick);
+        clearInterval(animation);
+        clearInterval(timer);
+        featureOverlay.remove();
         window.location.reload();
-      }, cooldownRemainingMs + 200);
-      return;
+      }, durationMs + 200);
     }
 
     const modalObserver = new MutationObserver(() => {
