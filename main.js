@@ -1785,8 +1785,8 @@ function initWorkerProfileModal() {
     welder: {
       rate: 'KES 1,500 - 6,000 per project',
       images: [
-        'https://loremflickr.com/800/600/welder,africa?lock=101',
-        'https://loremflickr.com/800/600/metalwork,africa?lock=102'
+        'https://images.pexels.com/photos/33653237/pexels-photo-33653237.jpeg?auto=compress&cs=tinysrgb&w=800',
+        'https://images.pexels.com/photos/33653239/pexels-photo-33653239.jpeg?auto=compress&cs=tinysrgb&w=800'
       ],
       captions: ['Steel gate fabrication — Nairobi Eastlands', 'Jua kali metalwork yard'],
       comments: ['Clean welding joints and delivered on time.', 'Very professional and fair pricing.']
@@ -1794,8 +1794,8 @@ function initWorkerProfileModal() {
     tailoring: {
       rate: 'KES 800 - 4,500 per order',
       images: [
-        'https://loremflickr.com/800/600/tailor,africa?lock=201',
-        'https://loremflickr.com/800/600/sewing,africa?lock=202'
+        'https://images.pexels.com/photos/12672102/pexels-photo-12672102.jpeg?auto=compress&cs=tinysrgb&w=800',
+        'https://images.pexels.com/photos/28038435/pexels-photo-28038435.jpeg?auto=compress&cs=tinysrgb&w=800'
       ],
       captions: ['Uniform stitching — Gikomba market area', 'Custom kitenge dress alteration'],
       comments: ['Neat finishing and perfect fitting.', 'Fast turnaround for urgent orders.']
@@ -1803,8 +1803,8 @@ function initWorkerProfileModal() {
     'electronics repair': {
       rate: 'KES 1,000 - 7,000 per repair',
       images: [
-        'https://loremflickr.com/800/600/electronics,repair?lock=301',
-        'https://loremflickr.com/800/600/technician,africa?lock=302'
+        'https://images.pexels.com/photos/19895841/pexels-photo-19895841.jpeg?auto=compress&cs=tinysrgb&w=800',
+        'https://images.pexels.com/photos/33694016/pexels-photo-33694016.jpeg?auto=compress&cs=tinysrgb&w=800'
       ],
       captions: ['Mobile phone board repair — River Road', 'TV and appliance diagnostics'],
       comments: ['Explained the fault clearly before repair.', 'Device works perfectly now.']
@@ -1812,8 +1812,8 @@ function initWorkerProfileModal() {
     electrician: {
       rate: 'KES 1,500 - 8,000 per task',
       images: [
-        'https://loremflickr.com/800/600/electrician,africa?lock=401',
-        'https://loremflickr.com/800/600/electrical,wiring?lock=402'
+        'https://images.pexels.com/photos/27928760/pexels-photo-27928760.jpeg?auto=compress&cs=tinysrgb&w=800',
+        'https://images.pexels.com/photos/34610700/pexels-photo-34610700.jpeg?auto=compress&cs=tinysrgb&w=800'
       ],
       captions: ['House wiring upgrade — Ruiru estate', 'DB board installation'],
       comments: ['Safety-first approach and quality work.', 'Solved long-term power issues quickly.']
@@ -1821,8 +1821,8 @@ function initWorkerProfileModal() {
     plumber: {
       rate: 'KES 1,200 - 7,500 per task',
       images: [
-        'https://loremflickr.com/800/600/plumber,africa?lock=501',
-        'https://loremflickr.com/800/600/plumbing,pipe?lock=502'
+        'https://images.pexels.com/photos/32588548/pexels-photo-32588548.jpeg?auto=compress&cs=tinysrgb&w=800',
+        'https://images.pexels.com/photos/29226620/pexels-photo-29226620.jpeg?auto=compress&cs=tinysrgb&w=800'
       ],
       captions: ['Pipe replacement — Kikuyu road flat', 'Bathroom fixture installation'],
       comments: ['No more leaks after service.', 'Punctual and very respectful.']
@@ -1830,8 +1830,8 @@ function initWorkerProfileModal() {
     masonry: {
       rate: 'KES 2,000 - 12,000 per project',
       images: [
-        'https://loremflickr.com/800/600/construction,africa?lock=601',
-        'https://loremflickr.com/800/600/masonry,concrete?lock=602'
+        'https://images.pexels.com/photos/33597033/pexels-photo-33597033.jpeg?auto=compress&cs=tinysrgb&w=800',
+        'https://images.pexels.com/photos/11321790/pexels-photo-11321790.jpeg?auto=compress&cs=tinysrgb&w=800'
       ],
       captions: ['Stone perimeter wall — Thika Road plot', 'Concrete block laying and plastering'],
       comments: ['Strong and clean finishing work.', 'Great attention to alignment and detail.']
@@ -1839,8 +1839,8 @@ function initWorkerProfileModal() {
     carpenter: {
       rate: 'KES 2,000 - 15,000 per project',
       images: [
-        'https://loremflickr.com/800/600/carpenter,africa?lock=701',
-        'https://loremflickr.com/800/600/woodwork,furniture?lock=702'
+        'https://images.pexels.com/photos/16368372/pexels-photo-16368372.jpeg?auto=compress&cs=tinysrgb&w=800',
+        'https://images.pexels.com/photos/16850251/pexels-photo-16850251.jpeg?auto=compress&cs=tinysrgb&w=800'
       ],
       captions: ['Custom kitchen cabinets — Roysambu', 'Bed frame and wardrobe fitting'],
       comments: ['Excellent craftsmanship on cabinets.', 'Delivered exactly what we requested.']
@@ -1848,8 +1848,8 @@ function initWorkerProfileModal() {
     'motor vehicle mechanic': {
       rate: 'KES 2,500 - 20,000 per job',
       images: [
-        'https://loremflickr.com/800/600/mechanic,africa?lock=801',
-        'https://loremflickr.com/800/600/car,repair,garage?lock=802'
+        'https://images.pexels.com/photos/16773594/pexels-photo-16773594.jpeg?auto=compress&cs=tinysrgb&w=800',
+        'https://images.pexels.com/photos/12555012/pexels-photo-12555012.jpeg?auto=compress&cs=tinysrgb&w=800'
       ],
       captions: ['Engine overhaul — Grogan Road garage', 'Matatu suspension and brake service'],
       comments: ['Car performance improved noticeably.', 'Honest diagnostics and updates.']
@@ -1857,8 +1857,8 @@ function initWorkerProfileModal() {
     'house cleaner': {
       rate: 'KES 1,000 - 5,000 per session',
       images: [
-        'https://loremflickr.com/800/600/cleaning,africa?lock=901',
-        'https://loremflickr.com/800/600/housework,domestic?lock=902'
+        'https://images.pexels.com/photos/6196684/pexels-photo-6196684.jpeg?auto=compress&cs=tinysrgb&w=800',
+        'https://images.pexels.com/photos/6195106/pexels-photo-6195106.jpeg?auto=compress&cs=tinysrgb&w=800'
       ],
       captions: ['Full house deep clean — Kilimani', 'Kitchen and bathroom sanitization'],
       comments: ['Very thorough and organized cleaning.', 'Arrived prepared and finished on time.']
@@ -1866,8 +1866,8 @@ function initWorkerProfileModal() {
     painter: {
       rate: 'KES 1,800 - 10,000 per project',
       images: [
-        'https://loremflickr.com/800/600/painter,wall,africa?lock=1001',
-        'https://loremflickr.com/800/600/painting,renovation?lock=1002'
+        'https://images.pexels.com/photos/36153946/pexels-photo-36153946.jpeg?auto=compress&cs=tinysrgb&w=800',
+        'https://images.pexels.com/photos/7218579/pexels-photo-7218579.jpeg?auto=compress&cs=tinysrgb&w=800'
       ],
       captions: ['Interior wall painting — Westlands apartment', 'Exterior coat finishing — Kikuyu home'],
       comments: ['Smooth finish and good color guidance.', 'Clean work with no paint spills.']
@@ -1912,8 +1912,8 @@ function initWorkerProfileModal() {
     const showcase = showcaseBySkill[skill] || {
       rate: 'Rate on request',
       images: [
-        `https://loremflickr.com/800/600/${encodeURIComponent(skill || 'craftsman')},africa?lock=9001`,
-        `https://loremflickr.com/800/600/${encodeURIComponent(skill || 'artisan')}?lock=9002`
+        'https://images.pexels.com/photos/11321790/pexels-photo-11321790.jpeg?auto=compress&cs=tinysrgb&w=800',
+        'https://images.pexels.com/photos/19982408/pexels-photo-19982408.jpeg?auto=compress&cs=tinysrgb&w=800'
       ],
       captions: ['Recent completed work', 'Another completed assignment'],
       comments: ['Great service and clear communication.', 'Professional and dependable.']
