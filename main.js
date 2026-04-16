@@ -1306,56 +1306,59 @@ function initRevealAnimation() {
 }
 
 function initHeroHeadlineAssembly() {
-  const heading = document.querySelector('[data-hero-headline]');
-  if (!heading) return;
+  const headings = document.querySelectorAll('[data-hero-headline]');
+  if (!headings.length) return;
 
   const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const text = heading.textContent.trim();
-  if (!text) return;
 
-  const words = text.split(/\s+/);
-  heading.textContent = '';
-  heading.setAttribute('aria-label', text);
-  heading.classList.add('is-prepared');
+  headings.forEach((heading) => {
+    const text = heading.textContent.trim();
+    if (!text) return;
 
-  words.forEach((word, index) => {
-    const wordSpan = document.createElement('span');
-    wordSpan.className = 'hero-word';
-    wordSpan.textContent = word;
+    const words = text.split(/\s+/);
+    heading.textContent = '';
+    heading.setAttribute('aria-label', text);
+    heading.classList.add('is-prepared');
 
-    if (!prefersReducedMotion) {
-      wordSpan.style.animationDelay = `${index * 90}ms`;
+    words.forEach((word, index) => {
+      const wordSpan = document.createElement('span');
+      wordSpan.className = 'hero-word';
+      wordSpan.textContent = word;
+
+      if (!prefersReducedMotion) {
+        wordSpan.style.animationDelay = `${index * 90}ms`;
+      }
+
+      heading.appendChild(wordSpan);
+    });
+
+    if (prefersReducedMotion) {
+      heading.classList.remove('is-prepared');
+      return;
     }
 
-    heading.appendChild(wordSpan);
+    const startAnimation = () => {
+      heading.classList.add('is-animating');
+    };
+
+    if (!('IntersectionObserver' in window)) {
+      window.requestAnimationFrame(startAnimation);
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry.isIntersecting) return;
+        startAnimation();
+        observer.disconnect();
+      },
+      {
+        threshold: 0.55
+      }
+    );
+
+    observer.observe(heading);
   });
-
-  if (prefersReducedMotion) {
-    heading.classList.remove('is-prepared');
-    return;
-  }
-
-  const startAnimation = () => {
-    heading.classList.add('is-animating');
-  };
-
-  if (!('IntersectionObserver' in window)) {
-    window.requestAnimationFrame(startAnimation);
-    return;
-  }
-
-  const observer = new IntersectionObserver(
-    ([entry]) => {
-      if (!entry.isIntersecting) return;
-      startAnimation();
-      observer.disconnect();
-    },
-    {
-      threshold: 0.55
-    }
-  );
-
-  observer.observe(heading);
 }
 
 function initTrustMetricsTypewriter() {
