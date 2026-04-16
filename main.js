@@ -6,6 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initHeroHeadlineAssembly();
   initTrustMetricsTypewriter();
   initAboutFeaturesInteractivity();
+  initPopularServicesRedirect();
   initHomeSearchRedirect();
   initFundiRegistration();
   initHireWorkersSearchFilter();
@@ -1611,12 +1612,45 @@ function initHomeSearchRedirect() {
   });
 }
 
+function initPopularServicesRedirect() {
+  const serviceItems = Array.from(document.querySelectorAll('.Category-list .category-item'));
+  if (!serviceItems.length) return;
+
+  const navigateToService = (item) => {
+    const query = (item.dataset.serviceQuery || item.textContent || '').trim();
+    if (!query) return;
+
+    const targetUrl = new URL('hireworkers.html', window.location.href);
+    targetUrl.searchParams.set('q', query);
+    window.location.href = targetUrl.toString();
+  };
+
+  serviceItems.forEach((item) => {
+    item.setAttribute('role', 'button');
+    item.setAttribute('tabindex', '0');
+
+    item.addEventListener('click', () => {
+      navigateToService(item);
+    });
+
+    item.addEventListener('keydown', (event) => {
+      if (event.key !== 'Enter' && event.key !== ' ') return;
+      event.preventDefault();
+      navigateToService(item);
+    });
+  });
+}
+
 function initHireWorkersSearchFilter() {
   const workerCards = document.querySelectorAll('.worker-card');
   if (!workerCards.length) return;
 
   const rawQuery = new URLSearchParams(window.location.search).get('q') || '';
   const query = rawQuery.trim().toLowerCase();
+  const queryTerms = query
+    .split(',')
+    .map((term) => term.trim())
+    .filter(Boolean);
   const searchResults = document.querySelector('[data-search-results]');
 
   if (!query) {
@@ -1635,7 +1669,9 @@ function initHireWorkersSearchFilter() {
 
   workerCards.forEach((card) => {
     const cardText = card.textContent.toLowerCase();
-    const isMatch = cardText.includes(query);
+    const isMatch = queryTerms.length
+      ? queryTerms.some((term) => cardText.includes(term))
+      : cardText.includes(query);
 
     card.dataset.searchMatch = String(isMatch);
     card.style.display = isMatch ? '' : 'none';
