@@ -46,6 +46,7 @@ function initLocalEnvironmentLock() {
   const lockUntilKey = 'jk_local_view_locked_until';
   const maxAttempts = 2;
   const cooldownMs = 60 * 1000;
+  const tamperCooldownMs = 3 * 60 * 1000;
   const expectedHash = 'f1294f35f19846cd012506eadcc13ecda95eb7ddc6c661bc1b9402c4b00eb703';
 
   if (sessionStorage.getItem(unlockSessionKey) === '1') return;
@@ -71,6 +72,27 @@ function initLocalEnvironmentLock() {
   }
 
   renderLockedOverlay();
+
+  const forceTamperLockdown = (reasonText) => {
+    const unlockAt = Date.now() + tamperCooldownMs;
+    localStorage.setItem(lockUntilKey, String(unlockAt));
+    localStorage.setItem(attemptsKey, String(maxAttempts));
+    document.body.classList.add('site-locked');
+    const existingOverlay = document.querySelector('[data-site-lock]');
+    if (existingOverlay) {
+      const feedback = existingOverlay.querySelector('[data-site-lock-feedback]');
+      const input = existingOverlay.querySelector('#site-lock-code');
+      const button = existingOverlay.querySelector('button[type="submit"]');
+      const card = existingOverlay.querySelector('.site-lock-card');
+      card?.classList.add('site-lock-card-lockdown');
+      if (feedback) feedback.textContent = `${reasonText} Security cooldown engaged for 180s.`;
+      if (input) input.disabled = true;
+      if (button) button.disabled = true;
+    }
+    window.setTimeout(() => {
+      window.location.reload();
+    }, 350);
+  };
 
   function renderLockedOverlay(forcedMessage = '', cooldownRemainingMs = 0) {
     document.body.classList.add('site-locked');
@@ -128,6 +150,35 @@ function initLocalEnvironmentLock() {
       return;
     }
 
+    const tamperObserver = new MutationObserver(() => {
+      const lockStillPresent = !!document.querySelector('[data-site-lock]');
+      if (sessionStorage.getItem(unlockSessionKey) === '1') return;
+      if (!lockStillPresent) {
+        tamperObserver.disconnect();
+        window.clearInterval(tamperInterval);
+        forceTamperLockdown('TAMPER DETECTED.');
+      }
+    });
+
+    tamperObserver.observe(document.documentElement, {
+      childList: true,
+      subtree: true
+    });
+
+    const tamperInterval = window.setInterval(() => {
+      const overlayExists = !!document.querySelector('[data-site-lock]');
+      if (sessionStorage.getItem(unlockSessionKey) === '1') {
+        tamperObserver.disconnect();
+        window.clearInterval(tamperInterval);
+        return;
+      }
+      if (!overlayExists) {
+        tamperObserver.disconnect();
+        window.clearInterval(tamperInterval);
+        forceTamperLockdown('TAMPER DETECTED.');
+      }
+    }, 700);
+
     input.focus();
 
     form.addEventListener('submit', async (event) => {
@@ -140,6 +191,8 @@ function initLocalEnvironmentLock() {
 
       const enteredHash = await sha256Hex(code);
       if (enteredHash === expectedHash) {
+        tamperObserver.disconnect();
+        window.clearInterval(tamperInterval);
         sessionStorage.setItem(unlockSessionKey, '1');
         localStorage.removeItem(attemptsKey);
         overlay.remove();
