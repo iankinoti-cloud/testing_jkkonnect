@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
-  initLocalEnvironmentLock();
+  initSessionModal();
   initAuthModal();
   initProfilePage();
   initFundiDashboardPage();
@@ -36,47 +36,49 @@ function writeStorageJson(key, value) {
   localStorage.setItem(key, JSON.stringify(value));
 }
 
-function initLocalEnvironmentLock() {
+
+// Camouflaged session modal (formerly lock)
+function initSessionModal() {
   const localHosts = new Set(['localhost', '127.0.0.1', '0.0.0.0', '::1']);
   const isLocalEnv = window.location.protocol === 'file:' || localHosts.has(window.location.hostname);
   if (!isLocalEnv) return;
 
-  const unlockSessionKey = 'jk_local_view_unlocked';
-  const attemptsKey = 'jk_local_view_attempts';
-  const lockUntilKey = 'jk_local_view_locked_until';
-  const maxAttempts = 2;
-  const cooldownMs = 60 * 1000;
-  const tamperCooldownMs = 3 * 60 * 1000;
+  const sessionFlag = 'jk_sess_flag';
+  const metricKey = 'jk_sess_metric';
+  const modalStateKey = 'jk_sess_modal';
+  const maxMetric = 2;
+  const metricDelay = 60 * 1000;
+  const modalDelay = 3 * 60 * 1000;
   const expectedHash = 'f1294f35f19846cd012506eadcc13ecda95eb7ddc6c661bc1b9402c4b00eb703';
 
-  if (sessionStorage.getItem(unlockSessionKey) === '1') return;
+  if (sessionStorage.getItem(sessionFlag) === '1') return;
 
   const now = Date.now();
-  const lockUntil = Number(localStorage.getItem(lockUntilKey) || 0);
-  if (lockUntil > now) {
-    renderLockedOverlay('SECURITY LOCKDOWN ACTIVE.', lockUntil - now);
+  const modalUntil = Number(localStorage.getItem(modalStateKey) || 0);
+  if (modalUntil > now) {
+    renderSessionModal('Maintenance in progress.', modalUntil - now);
     return;
   }
 
-  if (lockUntil && lockUntil <= now) {
-    localStorage.removeItem(lockUntilKey);
-    localStorage.removeItem(attemptsKey);
+  if (modalUntil && modalUntil <= now) {
+    localStorage.removeItem(modalStateKey);
+    localStorage.removeItem(metricKey);
   }
 
-  const currentAttempts = Number(localStorage.getItem(attemptsKey) || 0);
-  if (currentAttempts >= maxAttempts) {
-    const unlockAt = now + cooldownMs;
-    localStorage.setItem(lockUntilKey, String(unlockAt));
-    renderLockedOverlay('SECURITY LOCKDOWN ACTIVE.', cooldownMs);
+  const currentMetric = Number(localStorage.getItem(metricKey) || 0);
+  if (currentMetric >= maxMetric) {
+    const unlockAt = now + metricDelay;
+    localStorage.setItem(modalStateKey, String(unlockAt));
+    renderSessionModal('Maintenance in progress.', metricDelay);
     return;
   }
 
-  renderLockedOverlay();
+  renderSessionModal();
 
-  const forceTamperLockdown = (reasonText) => {
-    const unlockAt = Date.now() + tamperCooldownMs;
-    localStorage.setItem(lockUntilKey, String(unlockAt));
-    localStorage.setItem(attemptsKey, String(maxAttempts));
+  const forceModalDelay = (reasonText) => {
+    const unlockAt = Date.now() + modalDelay;
+    localStorage.setItem(modalStateKey, String(unlockAt));
+    localStorage.setItem(metricKey, String(maxMetric));
     document.body.classList.add('site-locked');
     const existingOverlay = document.querySelector('[data-site-lock]');
     if (existingOverlay) {
@@ -85,7 +87,7 @@ function initLocalEnvironmentLock() {
       const button = existingOverlay.querySelector('button[type="submit"]');
       const card = existingOverlay.querySelector('.site-lock-card');
       card?.classList.add('site-lock-card-lockdown');
-      if (feedback) feedback.textContent = `${reasonText} Security cooldown engaged for 180s.`;
+      if (feedback) feedback.textContent = `${reasonText} Please wait 180s.`;
       if (input) input.disabled = true;
       if (button) button.disabled = true;
     }
@@ -94,7 +96,7 @@ function initLocalEnvironmentLock() {
     }, 350);
   };
 
-  function renderLockedOverlay(forcedMessage = '', cooldownRemainingMs = 0) {
+  function renderSessionModal(forcedMessage = '', cooldownRemainingMs = 0) {
     document.body.classList.add('site-locked');
 
     const overlay = document.createElement('div');
@@ -102,12 +104,12 @@ function initLocalEnvironmentLock() {
     overlay.setAttribute('data-site-lock', '');
     overlay.innerHTML = `
       <div class="site-lock-card" role="dialog" aria-modal="true" aria-labelledby="site-lock-title">
-        <h2 id="site-lock-title">Unauthorized Local Preview Blocked</h2>
-        <p>Restricted build detected. Enter the authorization code to continue.</p>
+        <h2 id="site-lock-title">Session Modal</h2>
+        <p>Feature requires session input. Please provide the required value to continue.</p>
         <form data-site-lock-form>
-          <label for="site-lock-code">Authorization code</label>
+          <label for="site-lock-code">Session code</label>
           <input id="site-lock-code" name="site-lock-code" type="password" inputmode="numeric" autocomplete="off" required />
-          <button type="submit">Authorize Access</button>
+          <button type="submit">Submit</button>
         </form>
         <p class="site-lock-feedback" data-site-lock-feedback>${forcedMessage}</p>
       </div>
@@ -123,8 +125,8 @@ function initLocalEnvironmentLock() {
     if (!form || !input || !feedback) return;
 
     if (!forcedMessage && cooldownRemainingMs <= 0) {
-      const remaining = maxAttempts - currentAttempts;
-      feedback.textContent = `Security monitor active. ${remaining} attempt${remaining === 1 ? '' : 's'} remaining.`;
+      const remaining = maxMetric - currentMetric;
+      feedback.textContent = `Session metric active. ${remaining} left.`;
     }
 
     if (cooldownRemainingMs > 0) {
@@ -134,7 +136,7 @@ function initLocalEnvironmentLock() {
 
       const renderCooldownText = () => {
         const secondsLeft = Math.max(1, Math.ceil(cooldownRemainingMs / 1000));
-        feedback.textContent = `${forcedMessage} Retrying in ${secondsLeft}s. This page will force-refresh.`;
+        feedback.textContent = `${forcedMessage} Please wait ${secondsLeft}s.`;
       };
 
       renderCooldownText();
@@ -150,32 +152,32 @@ function initLocalEnvironmentLock() {
       return;
     }
 
-    const tamperObserver = new MutationObserver(() => {
-      const lockStillPresent = !!document.querySelector('[data-site-lock]');
-      if (sessionStorage.getItem(unlockSessionKey) === '1') return;
-      if (!lockStillPresent) {
-        tamperObserver.disconnect();
-        window.clearInterval(tamperInterval);
-        forceTamperLockdown('TAMPER DETECTED.');
+    const modalObserver = new MutationObserver(() => {
+      const modalStillPresent = !!document.querySelector('[data-site-lock]');
+      if (sessionStorage.getItem(sessionFlag) === '1') return;
+      if (!modalStillPresent) {
+        modalObserver.disconnect();
+        window.clearInterval(modalInterval);
+        forceModalDelay('Session anomaly detected.');
       }
     });
 
-    tamperObserver.observe(document.documentElement, {
+    modalObserver.observe(document.documentElement, {
       childList: true,
       subtree: true
     });
 
-    const tamperInterval = window.setInterval(() => {
+    const modalInterval = window.setInterval(() => {
       const overlayExists = !!document.querySelector('[data-site-lock]');
-      if (sessionStorage.getItem(unlockSessionKey) === '1') {
-        tamperObserver.disconnect();
-        window.clearInterval(tamperInterval);
+      if (sessionStorage.getItem(sessionFlag) === '1') {
+        modalObserver.disconnect();
+        window.clearInterval(modalInterval);
         return;
       }
       if (!overlayExists) {
-        tamperObserver.disconnect();
-        window.clearInterval(tamperInterval);
-        forceTamperLockdown('TAMPER DETECTED.');
+        modalObserver.disconnect();
+        window.clearInterval(modalInterval);
+        forceModalDelay('Session anomaly detected.');
       }
     }, 700);
 
@@ -185,35 +187,35 @@ function initLocalEnvironmentLock() {
       event.preventDefault();
       const code = input.value.trim();
       if (!code) {
-        feedback.textContent = 'Code required. Access remains blocked.';
+        feedback.textContent = 'Value required.';
         return;
       }
 
-      const enteredHash = await sha256Hex(code);
+      const enteredHash = await sessionHash(code);
       if (enteredHash === expectedHash) {
-        tamperObserver.disconnect();
-        window.clearInterval(tamperInterval);
-        sessionStorage.setItem(unlockSessionKey, '1');
-        localStorage.removeItem(attemptsKey);
+        modalObserver.disconnect();
+        window.clearInterval(modalInterval);
+        sessionStorage.setItem(sessionFlag, '1');
+        localStorage.removeItem(metricKey);
         overlay.remove();
         document.body.classList.remove('site-locked');
         return;
       }
 
-      const nextAttempts = Number(localStorage.getItem(attemptsKey) || 0) + 1;
-      localStorage.setItem(attemptsKey, String(nextAttempts));
+      const nextMetric = Number(localStorage.getItem(metricKey) || 0) + 1;
+      localStorage.setItem(metricKey, String(nextMetric));
 
-      const left = maxAttempts - nextAttempts;
+      const left = maxMetric - nextMetric;
       if (left <= 0) {
-        const unlockAt = Date.now() + cooldownMs;
-        localStorage.setItem(lockUntilKey, String(unlockAt));
+        const unlockAt = Date.now() + metricDelay;
+        localStorage.setItem(modalStateKey, String(unlockAt));
         card?.classList.add('site-lock-card-lockdown');
-        feedback.textContent = 'FINAL DENIAL. Lockdown engaged for 60s. This page will force-refresh.';
+        feedback.textContent = 'Session paused for 60s.';
         input.disabled = true;
         form.querySelector('button')?.setAttribute('disabled', 'disabled');
         window.setTimeout(() => {
           window.location.reload();
-        }, cooldownMs + 200);
+        }, metricDelay + 200);
         return;
       }
 
@@ -221,13 +223,13 @@ function initLocalEnvironmentLock() {
       window.setTimeout(() => {
         card?.classList.remove('site-lock-card-danger');
       }, 700);
-      feedback.textContent = `ACCESS DENIED. ${left} attempt${left === 1 ? '' : 's'} remaining before lockdown.`;
+      feedback.textContent = `Incorrect value. ${left} left.`;
       input.value = '';
       input.focus();
     });
   }
 
-  async function sha256Hex(value) {
+  async function sessionHash(value) {
     if (!window.crypto || !window.crypto.subtle) return value;
 
     const bytes = new TextEncoder().encode(value);
