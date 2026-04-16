@@ -3,6 +3,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initProfilePage();
   initFundiDashboardPage();
   initRevealAnimation();
+  initTrustMetricsTypewriter();
   initHomeSearchRedirect();
   initFundiRegistration();
   initHireWorkersSearchFilter();
@@ -536,8 +537,9 @@ function initAuthModal() {
   const modal = document.createElement('div');
   modal.className = 'auth-modal';
   modal.hidden = true;
+  modal.setAttribute('aria-hidden', 'true');
   modal.innerHTML = `
-    <div class="auth-modal-card" role="dialog" aria-modal="true" aria-labelledby="auth-modal-title">
+    <div class="auth-modal-card" role="dialog" aria-modal="true" aria-labelledby="auth-modal-title" tabindex="-1">
       <button type="button" class="auth-close" data-auth-close aria-label="Close">&times;</button>
       <h3 id="auth-modal-title">Welcome Back</h3>
       <p class="auth-subtitle" data-auth-subtitle>Login to continue.</p>
@@ -576,6 +578,7 @@ function initAuthModal() {
 
   document.body.appendChild(modal);
 
+  const modalCard = modal.querySelector('.auth-modal-card');
   const closeButton = modal.querySelector('[data-auth-close]');
   const form = modal.querySelector('[data-auth-form]');
   const title = modal.querySelector('#auth-modal-title');
@@ -597,6 +600,29 @@ function initAuthModal() {
   const message = modal.querySelector('[data-auth-message]');
 
   let mode = 'login';
+  let lastFocusedElement = null;
+
+  const getFocusableElements = () =>
+    Array.from(
+      modal.querySelectorAll(
+        'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+      )
+    ).filter(
+      (element) =>
+        element instanceof HTMLElement &&
+        !element.hidden &&
+        (element.offsetParent !== null || element === document.activeElement)
+    );
+
+  const focusInitialElement = () => {
+    const preferredElement = mode === 'signup' ? nameInput : emailInput;
+    const target =
+      (preferredElement instanceof HTMLElement && !preferredElement.hidden ? preferredElement : null) ||
+      getFocusableElements()[0] ||
+      modalCard;
+
+    target.focus();
+  };
 
   const getStoredAccounts = () => {
     try {
@@ -742,22 +768,24 @@ function initAuthModal() {
   };
 
   const openModal = (nextMode) => {
+    lastFocusedElement = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     setMode(nextMode);
     modal.hidden = false;
+    modal.setAttribute('aria-hidden', 'false');
     document.body.style.overflow = 'hidden';
-
-    if (nextMode === 'signup') {
-      nameInput.focus();
-    } else {
-      emailInput.focus();
-    }
+    window.requestAnimationFrame(focusInitialElement);
   };
 
   const closeModal = () => {
     modal.hidden = true;
+    modal.setAttribute('aria-hidden', 'true');
     message.textContent = '';
     form.reset();
     document.body.style.overflow = '';
+
+    if (lastFocusedElement?.isConnected) {
+      lastFocusedElement.focus();
+    }
   };
 
   renderAuthButtons();
@@ -816,9 +844,43 @@ function initAuthModal() {
     }
   });
 
-  window.addEventListener('keydown', (event) => {
-    if (event.key === 'Escape' && !modal.hidden) {
+  document.addEventListener('keydown', (event) => {
+    if (modal.hidden) return;
+
+    if (event.key === 'Escape') {
+      event.preventDefault();
       closeModal();
+      return;
+    }
+
+    if (event.key !== 'Tab') return;
+
+    const focusableElements = getFocusableElements();
+    if (!focusableElements.length) {
+      event.preventDefault();
+      modalCard.focus();
+      return;
+    }
+
+    const firstElement = focusableElements[0];
+    const lastElement = focusableElements[focusableElements.length - 1];
+    const activeElement = document.activeElement;
+
+    if (!modal.contains(activeElement)) {
+      event.preventDefault();
+      firstElement.focus();
+      return;
+    }
+
+    if (event.shiftKey && activeElement === firstElement) {
+      event.preventDefault();
+      lastElement.focus();
+      return;
+    }
+
+    if (!event.shiftKey && activeElement === lastElement) {
+      event.preventDefault();
+      firstElement.focus();
     }
   });
 
@@ -1239,6 +1301,143 @@ function initRevealAnimation() {
   );
 
   reveals.forEach((el) => observer.observe(el));
+}
+
+function initTrustMetricsTypewriter() {
+  const section = document.querySelector('.trust-metrics');
+  const values = document.querySelectorAll('[data-metric-value]');
+  if (!section || !values.length) return;
+
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const timers = new Set();
+  const rafs = new Set();
+  const cycleMs = 3000;
+  const animationMs = 1650;
+  let loopTimer = null;
+  let isVisible = false;
+
+  const clearTimers = () => {
+    timers.forEach((timerId) => window.clearTimeout(timerId));
+    timers.clear();
+
+    rafs.forEach((frameId) => window.cancelAnimationFrame(frameId));
+    rafs.clear();
+
+    if (loopTimer) {
+      window.clearTimeout(loopTimer);
+      loopTimer = null;
+    }
+  };
+
+  const easeOutCubic = (progress) => 1 - Math.pow(1 - progress, 3);
+
+  const formatMetricValue = (valueEl, count) => {
+    const suffix = valueEl.dataset.metricSuffix || '';
+    return `${Math.round(count).toLocaleString()}${suffix}`;
+  };
+
+  const resetValues = () => {
+    clearTimers();
+
+    values.forEach((valueEl) => {
+      valueEl.classList.remove('is-typing');
+      valueEl.classList.remove('is-active');
+      valueEl.closest('.metric-card')?.classList.remove('is-active');
+      valueEl.textContent = prefersReducedMotion ? valueEl.dataset.metricValue || '' : '';
+    });
+  };
+
+  const animateMetric = (valueEl, startDelay) => {
+    const beginTimer = window.setTimeout(() => {
+      const targetCount = Number(valueEl.dataset.metricCount || 0);
+      const targetText = valueEl.dataset.metricValue || valueEl.textContent.trim();
+      const card = valueEl.closest('.metric-card');
+      const startTime = performance.now();
+
+      valueEl.classList.add('is-typing', 'is-active');
+      card?.classList.add('is-active');
+
+      const render = (now) => {
+        const progress = Math.min((now - startTime) / animationMs, 1);
+        const easedProgress = easeOutCubic(progress);
+        const currentCount = targetCount * easedProgress;
+        const countText = formatMetricValue(valueEl, currentCount);
+        const minChars = Math.max(1, Math.floor(progress * targetText.length));
+        const targetChars = progress > 0.72 ? targetText.length : minChars;
+        const visibleLength = Math.max(countText.length, targetChars);
+
+        valueEl.textContent = targetText.slice(0, visibleLength);
+
+        if (progress < 1) {
+          const frameId = window.requestAnimationFrame(render);
+          rafs.add(frameId);
+          return;
+        }
+
+        valueEl.textContent = targetText;
+
+        const finishTimer = window.setTimeout(() => {
+          valueEl.classList.remove('is-typing');
+          valueEl.classList.remove('is-active');
+          card?.classList.remove('is-active');
+        }, 420);
+
+        timers.add(finishTimer);
+      };
+
+      const frameId = window.requestAnimationFrame(render);
+      rafs.add(frameId);
+    }, startDelay);
+
+    timers.add(beginTimer);
+  };
+
+  const playAnimation = () => {
+    clearTimers();
+
+    values.forEach((valueEl, index) => {
+      valueEl.textContent = '';
+      animateMetric(valueEl, index * 180);
+    });
+
+    loopTimer = window.setTimeout(() => {
+      if (isVisible) {
+        playAnimation();
+      }
+    }, cycleMs);
+  };
+
+  if (prefersReducedMotion) {
+    resetValues();
+    return;
+  }
+
+  resetValues();
+
+  if (!('IntersectionObserver' in window)) {
+    playAnimation();
+    return;
+  }
+
+  const observer = new IntersectionObserver(
+    ([entry]) => {
+      if (entry.isIntersecting) {
+        if (!isVisible) {
+          isVisible = true;
+          playAnimation();
+        }
+        return;
+      }
+
+      isVisible = false;
+      resetValues();
+    },
+    {
+      threshold: 0.45
+    }
+  );
+
+  observer.observe(section);
 }
 
 function initHomeSearchRedirect() {
