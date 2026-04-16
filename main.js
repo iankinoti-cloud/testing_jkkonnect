@@ -7,6 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initTrustMetricsTypewriter();
   initAboutFeaturesInteractivity();
   initPopularServicesRedirect();
+  initServiceArrivalBadge();
   initHomeSearchRedirect();
   initFundiRegistration();
   initHireWorkersSearchFilter();
@@ -1612,6 +1613,18 @@ function initHomeSearchRedirect() {
   });
 }
 
+const SERVICE_LABEL_MAP = {
+  'plumber,electrician': 'Plumbing & Electrical Repair',
+  'painter': 'Painting',
+  'house cleaner': 'House Cleaning',
+  'welder': 'Welding',
+  'carpenter': 'Carpentry',
+  'mechanic': 'Mechanics',
+  'electronics repair': 'Appliances Repair',
+  'tailoring': 'Tailoring',
+  'masonry': 'Masonry',
+};
+
 function initPopularServicesRedirect() {
   const serviceItems = Array.from(document.querySelectorAll('.Category-list .category-item'));
   if (!serviceItems.length) return;
@@ -1638,6 +1651,37 @@ function initPopularServicesRedirect() {
       event.preventDefault();
       navigateToService(item);
     });
+  });
+}
+
+function initServiceArrivalBadge() {
+  const workerSection = document.querySelector('.workers');
+  if (!workerSection) return;
+
+  const rawQuery = new URLSearchParams(window.location.search).get('q') || '';
+  const query = rawQuery.trim().toLowerCase();
+  if (!query) return;
+
+  const label = SERVICE_LABEL_MAP[query] || query
+    .split(',')
+    .map((t) => t.trim())
+    .map((t) => t.charAt(0).toUpperCase() + t.slice(1))
+    .join(' & ');
+
+  const badge = document.createElement('p');
+  badge.className = 'service-badge';
+  badge.setAttribute('role', 'status');
+  badge.innerHTML = `
+    <span>&#128269; Showing: <strong>${label}</strong></span>
+    <button type="button" class="service-badge-clear" aria-label="Clear filter" title="Show all fundis">&times;</button>
+  `;
+
+  workerSection.insertAdjacentElement('beforebegin', badge);
+
+  badge.querySelector('.service-badge-clear').addEventListener('click', () => {
+    const url = new URL(window.location.href);
+    url.searchParams.delete('q');
+    window.location.href = url.toString();
   });
 }
 
