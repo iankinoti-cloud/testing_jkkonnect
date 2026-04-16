@@ -1438,6 +1438,23 @@ function initAboutFeaturesInteractivity() {
     });
   };
 
+  const updateInViewState = (isInView) => {
+    section.classList.toggle('is-in-view', isInView);
+  };
+
+  if (prefersReducedMotion) {
+    updateInViewState(false);
+  } else if ('IntersectionObserver' in window) {
+    const presenceObserver = new IntersectionObserver(
+      ([entry]) => {
+        updateInViewState(entry.isIntersecting);
+      },
+      { threshold: 0.2 }
+    );
+
+    presenceObserver.observe(section);
+  }
+
   if (prefersReducedMotion || !('IntersectionObserver' in window)) {
     showCards();
   } else {
