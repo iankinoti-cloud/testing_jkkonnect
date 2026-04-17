@@ -241,14 +241,14 @@ textarea:focus-visible {
 /* =========================================
    GLOBAL HEADERS & SPACING
    ========================================= */
-header h1 {
+header > h1 {
     text-align: center;
     font-size: 3rem;
     margin-top: 40px;
     animation: fadeUp 0.8s ease forwards;
 }
 
-header p {
+header > p {
     text-align: center;
     color: var(--text-muted);
     font-size: 1.1rem;

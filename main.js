@@ -10,6 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initPopularServicesRedirect();
   initServiceArrivalBadge();
   initHomeSearchRedirect();
+  initHomeCtaActions();
   initFundiRegistration();
   initHireWorkersSearchFilter();
   initWorkerRatings();
@@ -1040,6 +1041,14 @@ function initAuthModal() {
 
   renderAuthButtons();
 
+  // Expose so other initializers can open the modal programmatically
+  window.__jkOpenAuthModal = (mode, prefillRole) => {
+    openModal(mode);
+    if (prefillRole && roleSelect) {
+      roleSelect.value = prefillRole;
+    }
+  };
+
   document.addEventListener('click', (event) => {
     const target = event.target;
     if (!(target instanceof HTMLElement)) return;
@@ -1857,6 +1866,31 @@ function initHomeSearchRedirect() {
 
     window.location.href = targetUrl.toString();
   });
+}
+
+function initHomeCtaActions() {
+  const postJobButton = document.querySelector('[data-home-post-job]');
+  const createFundiButton = document.querySelector('[data-home-create-fundi]');
+
+  if (postJobButton) {
+    postJobButton.addEventListener('click', () => {
+      const targetUrl = new URL('hireworkers.html', window.location.href);
+      window.location.href = targetUrl.toString();
+    });
+  }
+
+  if (createFundiButton) {
+    createFundiButton.addEventListener('click', () => {
+      if (typeof window.__jkOpenAuthModal === 'function') {
+        window.__jkOpenAuthModal('signup', 'fundi');
+      } else {
+        // Fallback: navigate to hire page fundi section
+        const targetUrl = new URL('hireworkers.html', window.location.href);
+        targetUrl.hash = 'fundi-onboarding';
+        window.location.href = targetUrl.toString();
+      }
+    });
+  }
 }
 
 const SERVICE_LABEL_MAP = {
