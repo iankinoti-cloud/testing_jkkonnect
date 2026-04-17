@@ -91,6 +91,35 @@
 
             <div class="profile-gallery" data-portfolio-list></div>
         </section>
+
+        <section class="profile-card" data-fundi-leads id="fundi-leads">
+            <h2>Lead Inbox</h2>
+            <p class="profile-helper">Review incoming client requests and respond with a quote.</p>
+            <p class="fundi-leads-summary" data-fundi-leads-summary>Loading leads...</p>
+            <div class="fundi-leads-list" data-fundi-leads-list></div>
+
+            <form class="fundi-quote-form" data-fundi-quote-form hidden>
+                <h3>Send Quote</h3>
+                <p class="fundi-quote-target" data-fundi-quote-target></p>
+                <input type="hidden" data-fundi-quote-lead-id>
+
+                <label for="fundi-quote-amount">Quote Amount (KES)</label>
+                <input type="number" id="fundi-quote-amount" min="1" step="1" data-fundi-quote-amount required>
+
+                <label for="fundi-quote-timeline">Timeline</label>
+                <input type="text" id="fundi-quote-timeline" data-fundi-quote-timeline placeholder="e.g 2 days" required>
+
+                <label for="fundi-quote-notes">Notes</label>
+                <textarea id="fundi-quote-notes" rows="3" data-fundi-quote-notes placeholder="Labor/material assumptions"></textarea>
+
+                <div class="fundi-quote-actions">
+                    <button type="submit">Send Quote</button>
+                    <button type="button" data-fundi-quote-cancel>Cancel</button>
+                </div>
+            </form>
+
+            <p class="profile-message" data-fundi-lead-message></p>
+        </section>
     </main>
 
     <script src="main.js"></script>

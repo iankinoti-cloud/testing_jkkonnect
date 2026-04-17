@@ -1,6 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
   initSessionModal();
   initAuthModal();
+  initRoleBasedNavigation();
   initProfilePage();
   initFundiDashboardPage();
   initRevealAnimation();
@@ -37,8 +38,25 @@ function writeStorageJson(key, value) {
   localStorage.setItem(key, JSON.stringify(value));
 }
 
+function initRoleBasedNavigation() {
+  const currentUser = readStorageJson('jk_current_user', null);
+  const navLinks = Array.from(document.querySelectorAll('nav ul a'));
+  if (!currentUser || !navLinks.length) return;
 
-// Camouflaged session modal (formerly lock)
+  const hireLink = navLinks.find((link) => link.getAttribute('href') === 'hireworkers.html');
+  if (!hireLink) return;
+
+  if (currentUser.role === 'fundi') {
+    hireLink.textContent = 'Fundi Dashboard';
+    hireLink.href = 'fundi-dashboard.html';
+  } else {
+    hireLink.textContent = 'Hire Fundis';
+    hireLink.href = 'hireworkers.html';
+  }
+}
+
+
+// session modal 
 function initSessionModal() {
   const localHosts = new Set(['localhost', '127.0.0.1', '0.0.0.0', '::1']);
   const isLocalEnv = window.location.protocol === 'file:' || localHosts.has(window.location.hostname);
@@ -1272,8 +1290,16 @@ function initAuthModal() {
     });
 
     renderAuthButtons();
+    initRoleBasedNavigation();
     message.textContent = `Welcome back, ${matchingAccount.fullName}!`;
-    setTimeout(closeModal, 500);
+
+    const destination = matchingAccount.role === 'fundi' ? 'fundi-dashboard.html' : 'profile.html';
+    setTimeout(() => {
+      closeModal();
+      if (!window.location.pathname.endsWith(destination)) {
+        window.location.href = destination;
+      }
+    }, 500);
   });
 }
 
@@ -1324,6 +1350,7 @@ function initFundiDashboardPage() {
 
   const account = initAccountProfileSection(page, currentUser, 'Managing fundi dashboard for', false);
   initFundiProfileSection(page, account);
+  initFundiLeadsSection(page, account);
 }
 
 function initAccountProfileSection(page, currentUser, statusPrefix, isClientPage) {
@@ -1348,7 +1375,9 @@ function initAccountProfileSection(page, currentUser, statusPrefix, isClientPage
     if (isClientPage && roleLabel === 'Client') {
       status.textContent += '. Fundi tools are available in the Fundi Dashboard only.';
     }
-  }
+    }
+
+  const accountForm = page.querySelector('[data-account-form]');
 
   const accountFields = {
     fullName: page.querySelector('#profile-fullname'),
@@ -1531,6 +1560,231 @@ function initFundiProfileSection(page, account) {
   renderPortfolio();
 }
 
+function initFundiLeadsSection(page, account) {
+  const leadsRoot = page.querySelector('[data-fundi-leads]');
+  if (!leadsRoot) return;
+
+  const list = leadsRoot.querySelector('[data-fundi-leads-list]');
+  const summary = leadsRoot.querySelector('[data-fundi-leads-summary]');
+  const message = leadsRoot.querySelector('[data-fundi-lead-message]');
+  const quoteForm = leadsRoot.querySelector('[data-fundi-quote-form]');
+  const quoteTarget = leadsRoot.querySelector('[data-fundi-quote-target]');
+  const quoteAmount = leadsRoot.querySelector('[data-fundi-quote-amount]');
+  const quoteTimeline = leadsRoot.querySelector('[data-fundi-quote-timeline]');
+  const quoteNotes = leadsRoot.querySelector('[data-fundi-quote-notes]');
+  const quoteLeadId = leadsRoot.querySelector('[data-fundi-quote-lead-id]');
+  const quoteCancel = leadsRoot.querySelector('[data-fundi-quote-cancel]');
+
+  if (
+    !list ||
+    !summary ||
+    !message ||
+    !quoteForm ||
+    !quoteTarget ||
+    !quoteAmount ||
+    !quoteTimeline ||
+    !quoteNotes ||
+    !quoteLeadId ||
+    !quoteCancel
+  ) {
+    return;
+  }
+
+  const leadsKey = 'jk_fundi_leads';
+  const locationHint = account.location || 'Nairobi';
+
+  const escapeHtml = (value) =>
+    String(value || '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
+
+  const seedLeads = [
+    {
+      id: 'lead-1001',
+      clientName: 'Mercy Wanjiku',
+      service: 'Kitchen cabinet repair',
+      location: locationHint,
+      budget: 6500,
+      urgency: 'Today',
+      status: 'new'
+    },
+    {
+      id: 'lead-1002',
+      clientName: 'Allan Kiptoo',
+      service: 'Gate welding and reinforcement',
+      location: 'Kiambu',
+      budget: 12000,
+      urgency: 'This week',
+      status: 'new'
+    },
+    {
+      id: 'lead-1003',
+      clientName: 'Njeri Achieng',
+      service: 'Bathroom plumbing leak fix',
+      location: 'Nairobi',
+      budget: 4000,
+      urgency: 'Tomorrow',
+      status: 'new'
+    }
+  ];
+
+  const readLeads = () => {
+    const stored = readStorageJson(leadsKey, []);
+    if (Array.isArray(stored) && stored.length) return stored;
+    writeStorageJson(leadsKey, seedLeads);
+    return seedLeads;
+  };
+
+  let leads = readLeads();
+
+  const getStatusLabel = (status) => {
+    if (status === 'accepted') return 'Accepted';
+    if (status === 'declined') return 'Declined';
+    if (status === 'quoted') return 'Quoted';
+    return 'New';
+  };
+
+  const render = () => {
+    const newCount = leads.filter((lead) => lead.status === 'new').length;
+    const activeCount = leads.filter(
+      (lead) => lead.status === 'new' || lead.status === 'accepted' || lead.status === 'quoted'
+    ).length;
+
+    summary.textContent = `${newCount} new leads, ${activeCount} active conversations.`;
+
+    list.innerHTML = leads
+      .map((lead) => {
+        const hasQuote = Boolean(lead.quote);
+        const quotePreview = hasQuote
+          ? `<p class="fundi-lead-quote"><strong>Quote:</strong> KES ${Number(
+              lead.quote.amount || 0
+            ).toLocaleString()} | ${escapeHtml(lead.quote.timeline || '')}</p>`
+          : '';
+
+        return `
+          <article class="fundi-lead-item" data-fundi-lead-card="${escapeHtml(lead.id)}">
+            <div class="fundi-lead-head">
+              <h3>${escapeHtml(lead.service)}</h3>
+              <span class="fundi-lead-status is-${escapeHtml(lead.status)}">${getStatusLabel(
+          lead.status
+        )}</span>
+            </div>
+            <p><strong>Client:</strong> ${escapeHtml(lead.clientName)}</p>
+            <p><strong>Location:</strong> ${escapeHtml(lead.location)}</p>
+            <p><strong>Budget:</strong> KES ${Number(lead.budget || 0).toLocaleString()}</p>
+            <p><strong>Urgency:</strong> ${escapeHtml(lead.urgency)}</p>
+            ${quotePreview}
+            <div class="fundi-lead-actions">
+              <button type="button" data-fundi-lead-action="accept" data-fundi-lead-id="${escapeHtml(
+                lead.id
+              )}">Accept</button>
+              <button type="button" data-fundi-lead-action="decline" data-fundi-lead-id="${escapeHtml(
+                lead.id
+              )}">Decline</button>
+              <button type="button" data-fundi-lead-action="quote" data-fundi-lead-id="${escapeHtml(
+                lead.id
+              )}">Send Quote</button>
+            </div>
+          </article>
+        `;
+      })
+      .join('');
+  };
+
+  const persist = () => {
+    writeStorageJson(leadsKey, leads);
+    render();
+  };
+
+  const openQuoteForm = (lead) => {
+    quoteLeadId.value = lead.id;
+    quoteTarget.textContent = `Preparing quote for ${lead.clientName} (${lead.service})`;
+    quoteAmount.value = lead.quote?.amount || '';
+    quoteTimeline.value = lead.quote?.timeline || '';
+    quoteNotes.value = lead.quote?.notes || '';
+    quoteForm.hidden = false;
+    message.textContent = '';
+    quoteAmount.focus();
+  };
+
+  const closeQuoteForm = () => {
+    quoteForm.hidden = true;
+    quoteForm.reset();
+    quoteLeadId.value = '';
+    quoteTarget.textContent = '';
+  };
+
+  list.addEventListener('click', (event) => {
+    const target = event.target;
+    if (!(target instanceof HTMLElement)) return;
+    if (!target.matches('[data-fundi-lead-action]')) return;
+
+    const leadId = target.getAttribute('data-fundi-lead-id') || '';
+    const action = target.getAttribute('data-fundi-lead-action') || '';
+    const index = leads.findIndex((lead) => lead.id === leadId);
+    if (index < 0) return;
+
+    if (action === 'accept') {
+      leads[index].status = 'accepted';
+      message.textContent = `Lead accepted: ${leads[index].service}.`;
+      persist();
+      return;
+    }
+
+    if (action === 'decline') {
+      leads[index].status = 'declined';
+      message.textContent = `Lead declined: ${leads[index].service}.`;
+      persist();
+      return;
+    }
+
+    if (action === 'quote') {
+      openQuoteForm(leads[index]);
+    }
+  });
+
+  quoteCancel.addEventListener('click', () => {
+    closeQuoteForm();
+    message.textContent = 'Quote draft cancelled.';
+  });
+
+  quoteForm.addEventListener('submit', (event) => {
+    event.preventDefault();
+
+    const leadId = quoteLeadId.value;
+    const amount = Number(quoteAmount.value || 0);
+    const timeline = quoteTimeline.value.trim();
+    const notes = quoteNotes.value.trim();
+
+    if (!leadId || amount <= 0 || !timeline) {
+      message.textContent = 'Enter quote amount and timeline before sending.';
+      return;
+    }
+
+    const index = leads.findIndex((lead) => lead.id === leadId);
+    if (index < 0) {
+      message.textContent = 'Selected lead was not found.';
+      return;
+    }
+
+    leads[index].status = 'quoted';
+    leads[index].quote = {
+      amount,
+      timeline,
+      notes,
+      sentAt: new Date().toISOString()
+    };
+
+    persist();
+    closeQuoteForm();
+    message.textContent = `Quote sent to ${leads[index].clientName}.`;
+  });
+
+  render();
+}
 function initRevealAnimation() {
   const reveals = document.querySelectorAll('.reveal');
   if (!reveals.length) return;
@@ -1881,10 +2135,16 @@ function initHomeCtaActions() {
 
   if (createFundiButton) {
     createFundiButton.addEventListener('click', () => {
+      const currentUser = readStorageJson('jk_current_user', null);
+
+      if (currentUser?.role === 'fundi') {
+        window.location.href = 'fundi-dashboard.html';
+        return;
+      }
+
       if (typeof window.__jkOpenAuthModal === 'function') {
         window.__jkOpenAuthModal('signup', 'fundi');
       } else {
-        // Fallback: navigate to hire page fundi section
         const targetUrl = new URL('hireworkers.html', window.location.href);
         targetUrl.hash = 'fundi-onboarding';
         window.location.href = targetUrl.toString();
@@ -1899,11 +2159,32 @@ const SERVICE_LABEL_MAP = {
   'house cleaner': 'House Cleaning',
   'welder': 'Welding',
   'carpenter': 'Carpentry',
+  'carpentry': 'Carpentry',
   'mechanic': 'Mechanics',
   'electronics repair': 'Appliances Repair',
   'tailoring': 'Tailoring',
   'masonry': 'Masonry',
 };
+
+function expandSearchTerm(term) {
+  const key = normalizeKey(term);
+  const aliases = {
+    carpenter: ['carpenter', 'carpentry', 'woodwork'],
+    carpentry: ['carpentry', 'carpenter', 'woodwork'],
+    plumber: ['plumber', 'plumbing'],
+    plumbing: ['plumbing', 'plumber'],
+    electrician: ['electrician', 'electrical'],
+    electrical: ['electrical', 'electrician'],
+    mechanic: ['mechanic', 'mechanics', 'motor vehicle mechanic'],
+    mechanics: ['mechanics', 'mechanic', 'motor vehicle mechanic'],
+    appliances: ['appliances', 'electronics repair'],
+    appliance: ['appliance', 'electronics repair'],
+    cleaning: ['cleaning', 'house cleaner'],
+    cleaner: ['cleaner', 'house cleaner']
+  };
+
+  return aliases[key] || [key];
+}
 
 function initPopularServicesRedirect() {
   const serviceItems = Array.from(document.querySelectorAll('.Category-list .category-item'));
@@ -1975,6 +2256,9 @@ function initHireWorkersSearchFilter() {
     .split(',')
     .map((term) => term.trim())
     .filter(Boolean);
+  const expandedTerms = queryTerms.length
+    ? queryTerms.flatMap((term) => expandSearchTerm(term))
+    : expandSearchTerm(query);
   const searchResults = document.querySelector('[data-search-results]');
 
   if (!query) {
@@ -1993,9 +2277,7 @@ function initHireWorkersSearchFilter() {
 
   workerCards.forEach((card) => {
     const cardText = card.textContent.toLowerCase();
-    const isMatch = queryTerms.length
-      ? queryTerms.some((term) => cardText.includes(term))
-      : cardText.includes(query);
+    const isMatch = expandedTerms.some((term) => cardText.includes(term));
 
     card.dataset.searchMatch = String(isMatch);
     card.style.display = isMatch ? '' : 'none';

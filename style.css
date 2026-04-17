@@ -1380,6 +1380,128 @@ h2 {
     color: var(--text-muted);
 }
 
+.fundi-leads-summary {
+    margin: 2px 0 4px;
+    color: #9a3412;
+    font-weight: 700;
+}
+
+.fundi-leads-list {
+    display: grid;
+    gap: 12px;
+}
+
+.fundi-lead-item {
+    border: 1px solid var(--border-soft);
+    border-radius: 12px;
+    padding: 14px;
+    background: #fffaf5;
+}
+
+.fundi-lead-item p {
+    margin: 4px 0;
+}
+
+.fundi-lead-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+}
+
+.fundi-lead-head h3 {
+    margin: 0;
+    font-size: 1.02rem;
+}
+
+.fundi-lead-status {
+    border-radius: 999px;
+    padding: 5px 10px;
+    font-size: 0.75rem;
+    font-weight: 700;
+}
+
+.fundi-lead-status.is-new {
+    background: #fff7ed;
+    color: #9a3412;
+    border: 1px solid #fdba74;
+}
+
+.fundi-lead-status.is-accepted {
+    background: #ecfdf3;
+    color: #166534;
+    border: 1px solid #86efac;
+}
+
+.fundi-lead-status.is-quoted {
+    background: #eff6ff;
+    color: #1d4ed8;
+    border: 1px solid #93c5fd;
+}
+
+.fundi-lead-status.is-declined {
+    background: #fff1f2;
+    color: #be123c;
+    border: 1px solid #fda4af;
+}
+
+.fundi-lead-actions {
+    margin-top: 10px;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+}
+
+.fundi-lead-actions button {
+    margin: 0;
+}
+
+.fundi-lead-actions [data-fundi-lead-action="accept"] {
+    background: #ecfdf3;
+    color: #166534;
+    border-color: #86efac;
+}
+
+.fundi-lead-actions [data-fundi-lead-action="decline"] {
+    background: #fff1f2;
+    color: #be123c;
+    border-color: #fda4af;
+}
+
+.fundi-lead-actions [data-fundi-lead-action="quote"] {
+    background: #fff7ed;
+    color: #9a3412;
+    border-color: #fdba74;
+}
+
+.fundi-lead-quote {
+    color: #1d4ed8;
+    font-weight: 600;
+}
+
+.fundi-quote-form {
+    margin-top: 12px;
+    border: 1px solid var(--border-soft);
+    border-radius: 10px;
+    padding: 12px;
+    display: grid;
+    gap: 8px;
+    background: var(--surface-white);
+}
+
+.fundi-quote-target {
+    margin: 0;
+    color: #9a3412;
+    font-weight: 600;
+}
+
+.fundi-quote-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+}
+
+
 .portfolio-remove-btn {
     width: 100%;
     border: 1px solid #fecdd3;
