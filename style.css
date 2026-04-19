@@ -15,10 +15,10 @@
     position: fixed;
     top: 20px;
     right: 40px;
-    color: #00FF41;
+    color: #EA580C;
     font: bold 2rem monospace;
     z-index: 10001;
-    text-shadow: 0 0 8px #00FF41, 0 0 2px #000;
+    text-shadow: 0 0 8px #EA580C, 0 0 2px #000;
 }
 /* ==========================================================================
    JUA KALI KONNECT - ENTERPRISE STYLESHEET
@@ -31,10 +31,10 @@
     /* Premium Color System */
     --brand-orange: #EA580C;
     --brand-orange-hover: #C2410C;
-    --bg-light: #F8FAFC;
+    --bg-light: #fffaf4;
     --surface-white: #FFFFFF;
     --text-dark: #0F172A;
-    --text-muted: #64748B;
+    --text-muted: #475569;
     --border-soft: #E2E8F0;
     
     /* Elevations */
@@ -491,21 +491,21 @@ h2 {
 .weather-brief.is-loading,
 .weather-brief.is-neutral {
     background: #fffbeb;
-    border-color: #fde68a;
+    border-color: #fdba74;
     color: #92400e;
 }
 
 .weather-brief.is-clear {
-    background: #ecfeff;
-    border-color: #67e8f9;
-    color: #0f766e;
+    background: #fff7ed;
+    border-color: #fdba74;
+    color: #9a3412;
 }
 
 .weather-brief.is-rain,
 .weather-brief.is-error {
-    background: #eff6ff;
-    border-color: #93c5fd;
-    color: #1e3a8a;
+    background: #fff7ed;
+    border-color: #fdba74;
+    color: #9a3412;
 }
 
 .profile-modal {
@@ -1101,10 +1101,10 @@ h2 {
 }
 
 .worker-whatsapp-link {
-    border: 1px solid #86efac;
+    border: 1px solid #fed7aa;
     border-radius: 8px;
-    background: #f0fdf4;
-    color: #166534;
+    background: #fff7ed;
+    color: #9a3412;
     text-decoration: none;
     font-weight: 700;
     display: inline-flex;
@@ -1115,7 +1115,7 @@ h2 {
 }
 
 .worker-whatsapp-link:hover {
-    background: #dcfce7;
+    background: #ffedd5;
 }
 
 .escrow-demo {
@@ -1461,21 +1461,21 @@ h2 {
 }
 
 .fundi-lead-status.is-accepted {
-    background: #ecfdf3;
-    color: #166534;
-    border: 1px solid #86efac;
+    background: #fff7ed;
+    color: #9a3412;
+    border: 1px solid #fed7aa;
 }
 
 .fundi-lead-status.is-quoted {
-    background: #eff6ff;
-    color: #1d4ed8;
-    border: 1px solid #93c5fd;
+    background: #fff7ed;
+    color: #9a3412;
+    border: 1px solid #fdba74;
 }
 
 .fundi-lead-status.is-declined {
-    background: #fff1f2;
-    color: #be123c;
-    border: 1px solid #fda4af;
+    background: #fff7ed;
+    color: #9a3412;
+    border: 1px solid #fdba74;
 }
 
 .fundi-lead-actions {
@@ -1490,15 +1490,15 @@ h2 {
 }
 
 .fundi-lead-actions [data-fundi-lead-action="accept"] {
-    background: #ecfdf3;
-    color: #166534;
-    border-color: #86efac;
+    background: #fff7ed;
+    color: #9a3412;
+    border-color: #fed7aa;
 }
 
 .fundi-lead-actions [data-fundi-lead-action="decline"] {
-    background: #fff1f2;
-    color: #be123c;
-    border-color: #fda4af;
+    background: #fff7ed;
+    color: #9a3412;
+    border-color: #fdba74;
 }
 
 .fundi-lead-actions [data-fundi-lead-action="quote"] {
@@ -1508,7 +1508,7 @@ h2 {
 }
 
 .fundi-lead-quote {
-    color: #1d4ed8;
+    color: #9a3412;
     font-weight: 600;
 }
 
@@ -1537,9 +1537,9 @@ h2 {
 
 .portfolio-remove-btn {
     width: 100%;
-    border: 1px solid #fecdd3;
-    background: #fff1f2;
-    color: #be123c;
+    border: 1px solid #fed7aa;
+    background: #fff7ed;
+    color: #9a3412;
     padding: 8px;
     cursor: pointer;
     font-weight: 700;
@@ -1549,8 +1549,8 @@ h2 {
 }
 
 .portfolio-remove-btn:hover {
-    background: #ffe4e6;
-    border-color: #fda4af;
+    background: #ffedd5;
+    border-color: #fdba74;
     transform: none;
 }
 
@@ -1674,7 +1674,7 @@ form button[type="submit"]:hover {
 }
 
 .contact-method-card p {
-    color: #e2e8f0;
+    color: #E2E8F0;
     margin: 0;
     text-align: left;
 }
@@ -2006,19 +2006,19 @@ footer p {
 }
 
 .site-lock-card-danger {
-    border-color: #ef4444;
+    border-color: #C2410C;
     box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.16), 0 16px 35px -20px rgba(127, 29, 29, 0.6);
     animation: siteLockShake 0.38s ease;
 }
 
 .site-lock-card-lockdown {
-    border-color: #991b1b;
-    background: linear-gradient(180deg, #fff6f6 0%, #ffe9e9 100%);
+    border-color: #7c2d12;
+    background: linear-gradient(180deg, #fff7ed 0%, #fff7ed 100%);
     box-shadow: 0 0 0 4px rgba(153, 27, 27, 0.16), 0 24px 45px -26px rgba(127, 29, 29, 0.8);
 }
 
 .site-lock-card-lockdown h2 {
-    color: #991b1b;
+    color: #7c2d12;
 }
 
 .site-lock-card h2 {
