@@ -475,6 +475,39 @@ h2 {
     color: var(--brand-orange);
 }
 
+.weather-brief {
+    margin: 0 5% 12px;
+    padding: 11px 14px;
+    border-radius: 10px;
+    border: 1px solid var(--border-soft);
+    background: #fff7ed;
+    color: #9a3412;
+    font-size: 0.95rem;
+    font-weight: 600;
+    line-height: 1.45;
+    animation: fadeUp 0.45s ease both;
+}
+
+.weather-brief.is-loading,
+.weather-brief.is-neutral {
+    background: #fffbeb;
+    border-color: #fde68a;
+    color: #92400e;
+}
+
+.weather-brief.is-clear {
+    background: #ecfeff;
+    border-color: #67e8f9;
+    color: #0f766e;
+}
+
+.weather-brief.is-rain,
+.weather-brief.is-error {
+    background: #eff6ff;
+    border-color: #93c5fd;
+    color: #1e3a8a;
+}
+
 .profile-modal {
     position: fixed;
     inset: 0;

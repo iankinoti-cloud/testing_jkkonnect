@@ -10,6 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initAboutFeaturesInteractivity();
   initPopularServicesRedirect();
   initServiceArrivalBadge();
+  initHireWorkersWeather();
   initHomeSearchRedirect();
   initHomeCtaActions();
   initFundiRegistration();
@@ -21,22 +22,8 @@ document.addEventListener('DOMContentLoaded', () => {
   initEscrowDemo();
 });
 
-function normalizeKey(value) {
-  return String(value || '').trim().toLowerCase();
-}
-
-function readStorageJson(key, fallback) {
-  try {
-    const raw = localStorage.getItem(key);
-    return raw ? JSON.parse(raw) : fallback;
-  } catch (_error) {
-    return fallback;
-  }
-}
-
-function writeStorageJson(key, value) {
-  localStorage.setItem(key, JSON.stringify(value));
-}
+// normalizeKey, readStorageJson, writeStorageJson, expandSearchTerm, SERVICE_LABEL_MAP
+// are defined in utils.js — load that script before main.js
 
 function initRoleBasedNavigation() {
   const currentUser = readStorageJson('jk_current_user', null);
@@ -2153,38 +2140,7 @@ function initHomeCtaActions() {
   }
 }
 
-const SERVICE_LABEL_MAP = {
-  'plumber,electrician': 'Plumbing & Electrical Repair',
-  'painter': 'Painting',
-  'house cleaner': 'House Cleaning',
-  'welder': 'Welding',
-  'carpenter': 'Carpentry',
-  'carpentry': 'Carpentry',
-  'mechanic': 'Mechanics',
-  'electronics repair': 'Appliances Repair',
-  'tailoring': 'Tailoring',
-  'masonry': 'Masonry',
-};
-
-function expandSearchTerm(term) {
-  const key = normalizeKey(term);
-  const aliases = {
-    carpenter: ['carpenter', 'carpentry', 'woodwork'],
-    carpentry: ['carpentry', 'carpenter', 'woodwork'],
-    plumber: ['plumber', 'plumbing'],
-    plumbing: ['plumbing', 'plumber'],
-    electrician: ['electrician', 'electrical'],
-    electrical: ['electrical', 'electrician'],
-    mechanic: ['mechanic', 'mechanics', 'motor vehicle mechanic'],
-    mechanics: ['mechanics', 'mechanic', 'motor vehicle mechanic'],
-    appliances: ['appliances', 'electronics repair'],
-    appliance: ['appliance', 'electronics repair'],
-    cleaning: ['cleaning', 'house cleaner'],
-    cleaner: ['cleaner', 'house cleaner']
-  };
-
-  return aliases[key] || [key];
-}
+// SERVICE_LABEL_MAP and expandSearchTerm are defined in utils.js
 
 function initPopularServicesRedirect() {
   const serviceItems = Array.from(document.querySelectorAll('.Category-list .category-item'));
@@ -2244,6 +2200,77 @@ function initServiceArrivalBadge() {
     url.searchParams.delete('q');
     window.location.href = url.toString();
   });
+}
+
+function initHireWorkersWeather() {
+  const banner = document.querySelector('[data-weather-banner]');
+  if (!banner) return;
+
+  const setBannerState = (state, message) => {
+    banner.classList.remove('is-loading', 'is-clear', 'is-rain', 'is-neutral', 'is-error');
+    banner.classList.add(state);
+    banner.textContent = message;
+  };
+
+  const classifyWeather = (code) => {
+    const rainyCodes = [51, 53, 55, 56, 57, 61, 63, 65, 66, 67, 80, 81, 82, 95, 96, 99];
+    const clearCodes = [0, 1];
+
+    if (rainyCodes.includes(code)) {
+      return {
+        icon: '🌧️',
+        tone: 'is-rain',
+        label: 'Rain expected',
+        message: 'Consider prioritizing indoor services today.'
+      };
+    }
+
+    if (clearCodes.includes(code)) {
+      return {
+        icon: '☀️',
+        tone: 'is-clear',
+        label: 'Clear skies',
+        message: 'Great day to hire outdoor fundis.'
+      };
+    }
+
+    return {
+      icon: '⛅',
+      tone: 'is-neutral',
+      label: 'Mixed conditions',
+      message: 'Weather is moderate for most jobs.'
+    };
+  };
+
+  const fetchWeather = async () => {
+    setBannerState('is-loading', 'Checking Nairobi weather...');
+
+    try {
+      const endpoint = 'https://api.open-meteo.com/v1/forecast?latitude=-1.286389&longitude=36.817223&current=temperature_2m,weather_code&timezone=Africa%2FNairobi';
+      const response = await fetch(endpoint);
+
+      if (!response.ok) {
+        throw new Error(`Weather request failed: ${response.status}`);
+      }
+
+      const payload = await response.json();
+      const temperature = Number(payload?.current?.temperature_2m);
+      const weatherCode = Number(payload?.current?.weather_code);
+
+      if (!Number.isFinite(temperature) || !Number.isFinite(weatherCode)) {
+        throw new Error('Weather payload missing fields');
+      }
+
+      const weather = classifyWeather(weatherCode);
+      const roundedTemp = Math.round(temperature);
+      const message = `${weather.icon} Nairobi ${roundedTemp}°C • ${weather.label}. ${weather.message}`;
+      setBannerState(weather.tone, message);
+    } catch (_error) {
+      setBannerState('is-error', 'Weather insight is unavailable right now. You can still browse fundis normally.');
+    }
+  };
+
+  fetchWeather();
 }
 
 function initHireWorkersSearchFilter() {

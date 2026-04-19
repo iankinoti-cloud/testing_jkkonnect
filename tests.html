@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>JKKonnect — Unit Tests</title>
+  <style>
+    *,
+    *::before,
+    *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: system-ui, sans-serif;
+      background: #f5f5f5;
+      color: #1a1a1a;
+      padding: 2rem;
+    }
+
+    h1 { font-size: 1.5rem; margin-bottom: 0.25rem; }
+    .subtitle { color: #666; margin-bottom: 2rem; font-size: 0.9rem; }
+
+    .suite { margin-bottom: 2rem; }
+    .suite-name {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #333;
+      margin-bottom: 0.5rem;
+      padding-bottom: 0.25rem;
+      border-bottom: 2px solid #ddd;
+    }
+
+    .test {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.5rem;
+      padding: 0.4rem 0.5rem;
+      border-radius: 4px;
+      font-size: 0.875rem;
+    }
+    .test.pass { background: #e8f5e9; }
+    .test.fail { background: #ffebee; }
+
+    .badge {
+      font-weight: 700;
+      font-size: 0.75rem;
+      padding: 2px 6px;
+      border-radius: 3px;
+      white-space: nowrap;
+    }
+    .badge.pass { background: #4caf50; color: #fff; }
+    .badge.fail { background: #f44336; color: #fff; }
+
+    .test-name { flex: 1; }
+    .test-error { color: #c62828; font-family: monospace; font-size: 0.8rem; }
+
+    #summary {
+      margin-top: 2rem;
+      padding: 1rem 1.25rem;
+      border-radius: 6px;
+      font-weight: 700;
+      font-size: 1rem;
+    }
+    #summary.all-pass { background: #c8e6c9; color: #1b5e20; }
+    #summary.has-fail { background: #ffcdd2; color: #b71c1c; }
+  </style>
+</head>
+<body>
+  <h1>JKKonnect Unit Tests</h1>
+  <p class="subtitle">Tests for utility functions in utils.js</p>
+  <div id="output"></div>
+  <div id="summary"></div>
+
+  <!-- Load the utilities under test -->
+  <script src="utils.js"></script>
+
+  <script>
+    // ─── Minimal test framework ───────────────────────────────────────────────
+
+    const results = [];
+
+    function describe(suiteName, fn) {
+      const suite = { name: suiteName, tests: [] };
+      results.push(suite);
+      const prevSuite = describe._current;
+      describe._current = suite;
+      fn();
+      describe._current = prevSuite;
+    }
+    describe._current = null;
+
+    function it(name, fn) {
+      const suite = describe._current;
+      try {
+        fn();
+        suite.tests.push({ name, passed: true });
+      } catch (err) {
+        suite.tests.push({ name, passed: false, error: err.message });
+      }
+    }
+
+    function expect(actual) {
+      return {
+        toBe(expected) {
+          if (actual !== expected) {
+            throw new Error(`Expected ${JSON.stringify(expected)}, got ${JSON.stringify(actual)}`);
+          }
+        },
+        toEqual(expected) {
+          const a = JSON.stringify(actual);
+          const b = JSON.stringify(expected);
+          if (a !== b) {
+            throw new Error(`Expected ${b}, got ${a}`);
+          }
+        },
+        toContain(item) {
+          if (!Array.isArray(actual) || !actual.includes(item)) {
+            throw new Error(`Expected array to contain ${JSON.stringify(item)}, got ${JSON.stringify(actual)}`);
+          }
+        },
+        toBeTruthy() {
+          if (!actual) throw new Error(`Expected truthy, got ${JSON.stringify(actual)}`);
+        },
+        toBeFalsy() {
+          if (actual) throw new Error(`Expected falsy, got ${JSON.stringify(actual)}`);
+        },
+      };
+    }
+
+    // ─── localStorage mock (tests run without a real server) ─────────────────
+
+    const _store = {};
+    const localStorageMock = {
+      getItem(k) { return Object.prototype.hasOwnProperty.call(_store, k) ? _store[k] : null; },
+      setItem(k, v) { _store[k] = String(v); },
+      removeItem(k) { delete _store[k]; },
+      clear() { Object.keys(_store).forEach(k => delete _store[k]); }
+    };
+
+    // Only replace if we are in a context without a real localStorage
+    // (file:// protocol treats localStorage as available but sandboxed — mock it anyway)
+    try {
+      window.localStorage.setItem('__test', '1');
+      window.localStorage.removeItem('__test');
+    } catch (_) {
+      Object.defineProperty(window, 'localStorage', { value: localStorageMock });
+    }
+
+    // ─── Test suites ─────────────────────────────────────────────────────────
+
+    describe('normalizeKey', () => {
+      it('lowercases uppercase strings', () => {
+        expect(normalizeKey('HELLO')).toBe('hello');
+      });
+
+      it('trims leading and trailing whitespace', () => {
+        expect(normalizeKey('  hello  ')).toBe('hello');
+      });
+
+      it('handles mixed case and whitespace', () => {
+        expect(normalizeKey('  CaRpEnTeR  ')).toBe('carpenter');
+      });
+
+      it('returns empty string for null', () => {
+        expect(normalizeKey(null)).toBe('');
+      });
+
+      it('returns empty string for undefined', () => {
+        expect(normalizeKey(undefined)).toBe('');
+      });
+
+      it('returns empty string for empty string', () => {
+        expect(normalizeKey('')).toBe('');
+      });
+
+      it('coerces numbers to string', () => {
+        expect(normalizeKey(42)).toBe('42');
+      });
+    });
+
+    describe('readStorageJson', () => {
+      it('returns fallback when key is absent', () => {
+        localStorage.clear();
+        expect(readStorageJson('missing_key', [])).toEqual([]);
+      });
+
+      it('parses valid JSON from storage', () => {
+        localStorage.setItem('test_obj', JSON.stringify({ role: 'fundi' }));
+        expect(readStorageJson('test_obj', null)).toEqual({ role: 'fundi' });
+      });
+
+      it('returns fallback when stored value is malformed JSON', () => {
+        localStorage.setItem('bad_json', '{not valid}');
+        expect(readStorageJson('bad_json', 'default')).toBe('default');
+      });
+
+      it('returns fallback (null) when key is absent and fallback is null', () => {
+        localStorage.clear();
+        const result = readStorageJson('nonexistent', null);
+        expect(result).toBe(null);
+      });
+    });
+
+    describe('writeStorageJson + readStorageJson round-trip', () => {
+      it('stores and retrieves a string value', () => {
+        writeStorageJson('rt_string', 'hello');
+        expect(readStorageJson('rt_string', null)).toBe('hello');
+      });
+
+      it('stores and retrieves an array', () => {
+        writeStorageJson('rt_array', [1, 2, 3]);
+        expect(readStorageJson('rt_array', null)).toEqual([1, 2, 3]);
+      });
+
+      it('stores and retrieves a nested object', () => {
+        writeStorageJson('rt_obj', { name: 'Wanjiku', role: 'client' });
+        expect(readStorageJson('rt_obj', null)).toEqual({ name: 'Wanjiku', role: 'client' });
+      });
+    });
+
+    describe('expandSearchTerm', () => {
+      it('returns aliases for "carpenter"', () => {
+        const terms = expandSearchTerm('carpenter');
+        expect(terms).toContain('carpenter');
+        expect(terms).toContain('carpentry');
+        expect(terms).toContain('woodwork');
+      });
+
+      it('returns aliases for "carpentry"', () => {
+        const terms = expandSearchTerm('carpentry');
+        expect(terms).toContain('carpenter');
+        expect(terms).toContain('carpentry');
+      });
+
+      it('is case-insensitive (uppercase input)', () => {
+        const terms = expandSearchTerm('CARPENTER');
+        expect(terms).toContain('carpenter');
+      });
+
+      it('is case-insensitive (mixed case)', () => {
+        const terms = expandSearchTerm('Plumber');
+        expect(terms).toContain('plumber');
+        expect(terms).toContain('plumbing');
+      });
+
+      it('returns aliases for "plumbing"', () => {
+        const terms = expandSearchTerm('plumbing');
+        expect(terms).toContain('plumber');
+      });
+
+      it('returns aliases for "electrician"', () => {
+        const terms = expandSearchTerm('electrician');
+        expect(terms).toContain('electrical');
+      });
+
+      it('returns aliases for "mechanic"', () => {
+        const terms = expandSearchTerm('mechanic');
+        expect(terms).toContain('mechanics');
+        expect(terms).toContain('motor vehicle mechanic');
+      });
+
+      it('returns aliases for "cleaning"', () => {
+        const terms = expandSearchTerm('cleaning');
+        expect(terms).toContain('house cleaner');
+      });
+
+      it('returns the term itself for unknown words', () => {
+        const terms = expandSearchTerm('unknownservice');
+        expect(terms).toEqual(['unknownservice']);
+      });
+
+      it('returns the term itself for an empty string', () => {
+        const terms = expandSearchTerm('');
+        expect(terms).toEqual(['']);
+      });
+
+      it('trims whitespace before matching', () => {
+        const terms = expandSearchTerm('  carpenter  ');
+        expect(terms).toContain('carpentry');
+      });
+    });
+
+    describe('SERVICE_LABEL_MAP', () => {
+      it('maps "carpenter" to "Carpentry"', () => {
+        expect(SERVICE_LABEL_MAP['carpenter']).toBe('Carpentry');
+      });
+
+      it('maps "carpentry" to "Carpentry"', () => {
+        expect(SERVICE_LABEL_MAP['carpentry']).toBe('Carpentry');
+      });
+
+      it('maps "painter" to "Painting"', () => {
+        expect(SERVICE_LABEL_MAP['painter']).toBe('Painting');
+      });
+
+      it('maps "masonry" to "Masonry"', () => {
+        expect(SERVICE_LABEL_MAP['masonry']).toBe('Masonry');
+      });
+
+      it('maps "electronics repair" to "Appliances Repair"', () => {
+        expect(SERVICE_LABEL_MAP['electronics repair']).toBe('Appliances Repair');
+      });
+
+      it('returns undefined for unknown keys', () => {
+        expect(SERVICE_LABEL_MAP['unknown']).toBe(undefined);
+      });
+    });
+
+    // ─── Render results ───────────────────────────────────────────────────────
+
+    let totalPass = 0;
+    let totalFail = 0;
+    const output = document.getElementById('output');
+
+    results.forEach(suite => {
+      const suiteEl = document.createElement('div');
+      suiteEl.className = 'suite';
+
+      const suiteName = document.createElement('div');
+      suiteName.className = 'suite-name';
+      suiteName.textContent = suite.name;
+      suiteEl.appendChild(suiteName);
+
+      suite.tests.forEach(test => {
+        const row = document.createElement('div');
+        row.className = `test ${test.passed ? 'pass' : 'fail'}`;
+
+        const badge = document.createElement('span');
+        badge.className = `badge ${test.passed ? 'pass' : 'fail'}`;
+        badge.textContent = test.passed ? 'PASS' : 'FAIL';
+
+        const name = document.createElement('span');
+        name.className = 'test-name';
+        name.textContent = test.name;
+
+        row.appendChild(badge);
+        row.appendChild(name);
+
+        if (!test.passed && test.error) {
+          const err = document.createElement('span');
+          err.className = 'test-error';
+          err.textContent = test.error;
+          row.appendChild(err);
+        }
+
+        suiteEl.appendChild(row);
+        test.passed ? totalPass++ : totalFail++;
+      });
+
+      output.appendChild(suiteEl);
+    });
+
+    const summary = document.getElementById('summary');
+    const total = totalPass + totalFail;
+    summary.className = totalFail === 0 ? 'all-pass' : 'has-fail';
+    summary.textContent = totalFail === 0
+      ? `All ${total} tests passed.`
+      : `${totalFail} of ${total} tests failed.`;
+  </script>
+</body>
+</html>
