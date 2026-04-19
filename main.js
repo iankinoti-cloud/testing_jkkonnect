@@ -1980,7 +1980,7 @@ function initAboutFeaturesInteractivity() {
   if (!section) return;
 
   const cards = Array.from(section.querySelectorAll('.feature-card'));
-  const expandableCards = Array.from(section.querySelectorAll('[data-expand-card]'));
+  const explanationNodes = Array.from(section.querySelectorAll('.feature-extra'));
   const stepItems = Array.from(section.querySelectorAll('[data-step-item]'));
   const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -2025,47 +2025,62 @@ function initAboutFeaturesInteractivity() {
     observer.observe(section);
   }
 
-  const coarsePointer = window.matchMedia('(hover: none), (pointer: coarse)').matches;
+  const startTypewriter = () => {
+    if (!explanationNodes.length) return;
 
-  const collapseExpandableCards = () => {
-    expandableCards.forEach((card) => card.classList.remove('is-expanded'));
+    const textQueue = explanationNodes.map((node) => {
+      const fullText = node.dataset.fullText || node.textContent.trim();
+      node.dataset.fullText = fullText;
+      node.textContent = prefersReducedMotion ? fullText : '';
+      node.classList.remove('is-typing');
+      return { node, fullText };
+    });
+
+    if (prefersReducedMotion) return;
+
+    const charDelayMs = 22;
+    const gapDelayMs = 280;
+
+    const typeAt = (index) => {
+      if (index >= textQueue.length) return;
+
+      const { node, fullText } = textQueue[index];
+      let cursor = 0;
+      node.classList.add('is-typing');
+
+      const tick = () => {
+        node.textContent = fullText.slice(0, cursor + 1);
+        cursor += 1;
+
+        if (cursor < fullText.length) {
+          window.setTimeout(tick, charDelayMs);
+          return;
+        }
+
+        node.classList.remove('is-typing');
+        window.setTimeout(() => typeAt(index + 1), gapDelayMs);
+      };
+
+      tick();
+    };
+
+    typeAt(0);
   };
 
-  expandableCards.forEach((card) => {
-    card.addEventListener('click', () => {
-      if (!coarsePointer) return;
-      const shouldExpand = !card.classList.contains('is-expanded');
-      collapseExpandableCards();
-      if (shouldExpand) card.classList.add('is-expanded');
-    });
+  if (prefersReducedMotion || !('IntersectionObserver' in window)) {
+    startTypewriter();
+  } else {
+    const typeObserver = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry.isIntersecting) return;
+        startTypewriter();
+        typeObserver.disconnect();
+      },
+      { threshold: 0.35 }
+    );
 
-    card.addEventListener('mouseenter', () => {
-      if (coarsePointer) return;
-      card.classList.add('is-expanded');
-    });
-
-    card.addEventListener('mouseleave', () => {
-      if (coarsePointer) return;
-      card.classList.remove('is-expanded');
-    });
-
-    card.addEventListener('focusin', () => {
-      card.classList.add('is-expanded');
-    });
-
-    card.addEventListener('focusout', (event) => {
-      if (card.contains(event.relatedTarget)) return;
-      if (!coarsePointer) card.classList.remove('is-expanded');
-    });
-
-    card.addEventListener('keydown', (event) => {
-      if (event.key !== 'Enter' && event.key !== ' ') return;
-      event.preventDefault();
-      const shouldExpand = !card.classList.contains('is-expanded');
-      collapseExpandableCards();
-      if (shouldExpand) card.classList.add('is-expanded');
-    });
-  });
+    typeObserver.observe(section);
+  }
 
   if (!stepItems.length) return;
 

@@ -712,6 +712,32 @@ h2 {
         linear-gradient(180deg, rgba(255, 255, 255, 0.86), rgba(248, 250, 252, 0.92));
 }
 
+.home-features {
+    position: relative;
+    overflow: hidden;
+}
+
+.home-features .feature-grid {
+    position: relative;
+    z-index: 1;
+}
+
+.home-features::before {
+    content: '';
+    position: absolute;
+    inset: -80px -20px;
+    background: linear-gradient(110deg, transparent 25%, rgba(234, 88, 12, 0.08) 50%, transparent 75%);
+    transform: translateX(-120%);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.35s ease;
+}
+
+.home-features.is-visible::before {
+    opacity: 1;
+    animation: featuresSweep 3.2s ease-in-out infinite;
+}
+
 .feature-grid h4, .feature-grid h3 {
     font-size: 1.4rem;
     margin-bottom: 15px;
@@ -773,35 +799,17 @@ h2 {
     transform: translateY(0);
 }
 
-.about-features .feature-card[data-expand-card] {
-    cursor: pointer;
-}
-
-.about-features .feature-card[data-expand-card]:focus-visible {
-    outline: none;
-    box-shadow: var(--ring);
-}
-
 .about-features .feature-extra {
     display: block;
-    max-height: 0;
-    opacity: 0;
-    overflow: hidden;
-    margin-top: 0;
-    transition: max-height 0.35s ease, opacity 0.3s ease, margin-top 0.3s ease;
+    margin-top: 6px;
     font-size: 0.9rem;
     color: #475569;
 }
 
-.about-features .feature-card[data-expand-card].is-expanded .feature-extra {
-    max-height: 90px;
-    opacity: 1;
-    margin-top: 6px;
-}
-
-.about-features .feature-card[data-expand-card].is-expanded {
-    border-color: rgba(234, 88, 12, 0.35);
-    box-shadow: 0 16px 30px -18px rgba(234, 88, 12, 0.5);
+.about-features .feature-extra.is-typing {
+    border-right: 2px solid #fdba74;
+    padding-right: 2px;
+    animation: typeCaretBlink 0.85s step-end infinite;
 }
 
 .about-features .how-steps {
@@ -870,6 +878,18 @@ h2 {
     }
     100% {
         transform: translateX(120%);
+    }
+}
+
+@keyframes typeCaretBlink {
+    0%,
+    49% {
+        border-right-color: #fdba74;
+    }
+
+    50%,
+    100% {
+        border-right-color: transparent;
     }
 }
 
