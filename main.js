@@ -173,38 +173,338 @@ function initSessionModal() {
     function showFeatureRain(durationMs) {
       let featureOverlay = document.createElement('div');
       featureOverlay.className = 'matrix-rain-overlay';
-      featureOverlay.innerHTML = `<canvas id="feature-rain-canvas" style="display:block;width:100vw;height:100vh;"></canvas><div class="matrix-timer"></div>`;
+      featureOverlay.innerHTML = `<canvas id="feature-rain-canvas" style="display:block;width:100vw;height:100vh;"></canvas><div class="matrix-face"><div class="matrix-head"><svg class="matrix-eyebrows" viewBox="0 0 300 80" xmlns="http://www.w3.org/2000/svg"><path class="matrix-eyebrow-left" d="M 50 50 Q 80 30 110 50" stroke="#00FF41" stroke-width="4" fill="none" stroke-linecap="round"/><path class="matrix-eyebrow-right" d="M 190 50 Q 220 30 250 50" stroke="#00FF41" stroke-width="4" fill="none" stroke-linecap="round"/></svg><div class="matrix-eyes-container"><div class="matrix-eye"><div class="matrix-pupil"></div></div><div class="matrix-eye"><div class="matrix-pupil"></div></div></div><div class="matrix-nose"></div><svg class="matrix-mouth" viewBox="0 0 100 50" xmlns="http://www.w3.org/2000/svg"><path d="M 10 30 Q 50 50 90 30" stroke="#00FF41" stroke-width="3" fill="none" stroke-linecap="round"/></svg></div><p class="matrix-intro-caption">KINOTI PRESENTS TO YOU:</p></div><div class="matrix-timer"></div>`;
       document.body.appendChild(featureOverlay);
 
       const canvas = featureOverlay.querySelector('#feature-rain-canvas');
       const timerDiv = featureOverlay.querySelector('.matrix-timer');
+      const matrixFace = featureOverlay.querySelector('.matrix-face');
+      const matrixHead = featureOverlay.querySelector('.matrix-head');
+      const introCaption = featureOverlay.querySelector('.matrix-intro-caption');
+      const eyesContainer = featureOverlay.querySelector('.matrix-eyes-container');
       const ctx = canvas.getContext('2d');
+      const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      if (introCaption) {
+        const captionText = introCaption.textContent || '';
+        introCaption.textContent = '';
+        introCaption.setAttribute('aria-label', captionText);
+
+        Array.from(captionText).forEach((char, index) => {
+          const span = document.createElement('span');
+          if (char === ' ') {
+            span.className = 'matrix-caption-gap';
+            span.innerHTML = '&nbsp;';
+          } else {
+            span.className = 'matrix-caption-letter';
+            span.style.setProperty('--letter-index', String(index));
+            span.textContent = char;
+          }
+          introCaption.appendChild(span);
+        });
+      }
+
       let width = window.innerWidth;
       let height = window.innerHeight;
       canvas.width = width;
       canvas.height = height;
 
       let fontSize = 18;
+      const matrixTechFont = "'Share Tech Mono', 'IBM Plex Mono', monospace";
       let columns = Math.floor(width / fontSize);
       let drops = Array(columns).fill(1);
+      let rainFade = 0.08;
+      let rainResetChance = 0.975;
+      let rainFadeTarget = 0.08;
+      let rainResetChanceTarget = 0.975;
+      let didFinale = false;
+      let finalSequenceActive = false;
+      let finalPhase = 'idle';
+      let finalParticles = [];
+      let finalTimelineStart = 0;
+
+      let gazeTargetX = 0;
+      let gazeTargetY = 0;
+      let gazeCurrentX = 0;
+      let gazeCurrentY = 0;
+      let gazeRaf = null;
+
+      function clamp(value, min, max) {
+        return Math.max(min, Math.min(max, value));
+      }
+
+      function onPointerMove(event) {
+        if (prefersReducedMotion || !eyesContainer) return;
+        const centerX = width / 2;
+        const centerY = height / 2;
+        const deltaX = (event.clientX - centerX) / centerX;
+        const deltaY = (event.clientY - centerY) / centerY;
+        gazeTargetX = clamp(deltaX * 8, -8, 8);
+        gazeTargetY = clamp(deltaY * 5, -5, 5);
+      }
+
+      function animateGaze() {
+        if (!eyesContainer) return;
+        gazeCurrentX += (gazeTargetX - gazeCurrentX) * 0.12;
+        gazeCurrentY += (gazeTargetY - gazeCurrentY) * 0.12;
+        eyesContainer.style.transform = `translate(${gazeCurrentX.toFixed(2)}px, ${gazeCurrentY.toFixed(2)}px)`;
+        gazeRaf = window.requestAnimationFrame(animateGaze);
+      }
+
+      if (!prefersReducedMotion && eyesContainer) {
+        featureOverlay.addEventListener('pointermove', onPointerMove);
+        featureOverlay.addEventListener('pointerleave', () => {
+          gazeTargetX = 0;
+          gazeTargetY = 0;
+        });
+        gazeRaf = window.requestAnimationFrame(animateGaze);
+      }
+
+      const phaseClassNames = [
+        'matrix-phase-detection',
+        'matrix-phase-recognition',
+        'matrix-phase-interrogation',
+        'matrix-phase-pressure',
+        'matrix-phase-instability',
+        'matrix-phase-release'
+      ];
+
+      const totalSeconds = Math.max(1, Math.ceil(durationMs / 1000));
+      const climaxStartSeconds = Math.min(20, Math.max(12, Math.floor(totalSeconds * 0.33)));
+      const captionTeaseSecondsLeft = 14;
+      const captionRevealSecondsLeft = 10;
+      const explodeDurationMs = 850;
+      const gatherDurationMs = 2200;
+      const holdDurationMs = 3600;
+      let captionTeased = false;
+      let captionShown = false;
+
+      function easeOutCubic(t) {
+        return 1 - Math.pow(1 - t, 3);
+      }
+
+      function buildTextTargets() {
+        const offscreen = document.createElement('canvas');
+        offscreen.width = width;
+        offscreen.height = height;
+        const offCtx = offscreen.getContext('2d');
+        if (!offCtx) return [];
+
+        const label = 'JUA KALI KONNECT';
+        const fontSizePx = Math.max(36, Math.min(118, Math.floor(width * 0.125)));
+        offCtx.fillStyle = '#00FF41';
+        offCtx.textAlign = 'center';
+        offCtx.textBaseline = 'middle';
+        offCtx.font = `700 ${fontSizePx}px ${matrixTechFont}`;
+        offCtx.fillText(label, width / 2, height / 2);
+
+        const imageData = offCtx.getImageData(0, 0, width, height).data;
+        const targets = [];
+        const step = Math.max(5, Math.floor(fontSize / 2.6));
+        for (let y = 0; y < height; y += step) {
+          for (let x = 0; x < width; x += step) {
+            const index = (y * width + x) * 4 + 3;
+            if (imageData[index] > 100) {
+              targets.push({ x, y });
+            }
+          }
+        }
+        return targets;
+      }
+
+      function startFinalSequence() {
+        if (finalSequenceActive) return;
+
+        finalSequenceActive = true;
+        finalTimelineStart = performance.now();
+        finalPhase = 'explode';
+        featureOverlay.classList.add('matrix-final-sequence');
+        matrixFace.classList.add('matrix-bomb-exploded');
+        introCaption?.classList.add('matrix-caption-explode');
+
+        const headRect = matrixHead ? matrixHead.getBoundingClientRect() : {
+          left: width / 2 - 160,
+          top: height / 2 - 160,
+          width: 320,
+          height: 320
+        };
+        const centerX = headRect.left + headRect.width / 2;
+        const centerY = headRect.top + headRect.height / 2;
+        const spawnRadius = Math.min(headRect.width, headRect.height) * 0.5;
+
+        const targets = buildTextTargets();
+        const particleCount = Math.max(targets.length, 450);
+        finalParticles = Array.from({ length: particleCount }, (_, index) => {
+          const angle = Math.random() * Math.PI * 2;
+          const radius = Math.random() * spawnRadius;
+          const target = targets.length ? targets[index % targets.length] : { x: width / 2, y: height / 2 };
+          return {
+            x: centerX + Math.cos(angle) * radius,
+            y: centerY + Math.sin(angle) * radius,
+            vx: (Math.random() - 0.5) * 14,
+            vy: (Math.random() - 0.55) * 14,
+            tx: target.x + (Math.random() - 0.5) * 0.8,
+            ty: target.y + (Math.random() - 0.5) * 0.8,
+            char: Math.random() > 0.5 ? '0' : '1',
+            alpha: 1
+          };
+        });
+      }
+
+      function applyFacePhase(seconds) {
+        phaseClassNames.forEach((name) => matrixFace.classList.remove(name));
+
+        const progress = seconds / totalSeconds;
+        matrixFace.style.setProperty('--matrix-progress', String(progress));
+        matrixFace.style.setProperty('--matrix-intensity', String(1 - progress));
+
+        if (progress >= 0.8) {
+          matrixFace.classList.add('matrix-phase-detection');
+          rainFadeTarget = 0.08;
+          rainResetChanceTarget = 0.975;
+          return;
+        }
+
+        if (progress >= 0.6) {
+          matrixFace.classList.add('matrix-phase-recognition');
+          rainFadeTarget = 0.09;
+          rainResetChanceTarget = 0.97;
+          return;
+        }
+
+        if (progress >= 0.4) {
+          matrixFace.classList.add('matrix-phase-interrogation');
+          rainFadeTarget = 0.1;
+          rainResetChanceTarget = 0.965;
+          return;
+        }
+
+        if (progress >= 0.22) {
+          matrixFace.classList.add('matrix-phase-pressure');
+          rainFadeTarget = 0.11;
+          rainResetChanceTarget = 0.96;
+          return;
+        }
+
+        if (progress > 8 / 60) {
+          matrixFace.classList.add('matrix-phase-instability');
+          rainFadeTarget = 0.12;
+          rainResetChanceTarget = 0.955;
+          return;
+        }
+
+        matrixFace.classList.add('matrix-phase-release');
+        rainFadeTarget = 0.07;
+        rainResetChanceTarget = 0.98;
+      }
 
       function drawFeature() {
-        ctx.fillStyle = 'rgba(0, 0, 0, 0.08)';
+        rainFade += (rainFadeTarget - rainFade) * 0.08;
+        rainResetChance += (rainResetChanceTarget - rainResetChance) * 0.08;
+        ctx.fillStyle = `rgba(0, 0, 0, ${rainFade})`;
         ctx.fillRect(0, 0, width, height);
-        ctx.font = fontSize + 'px monospace';
+        ctx.font = fontSize + 'px ' + matrixTechFont;
         ctx.fillStyle = '#00FF41';
+
+        const shieldActive = !finalSequenceActive;
+        let shieldCenterX = width * 0.5;
+        let shieldCenterY = height * 0.5;
+        let shieldRadius = 0;
+        if (shieldActive && matrixHead) {
+          const headRect = matrixHead.getBoundingClientRect();
+          shieldCenterX = headRect.left + headRect.width / 2;
+          shieldCenterY = headRect.top + headRect.height / 2;
+          shieldRadius = Math.min(headRect.width, headRect.height) * 0.51;
+        }
+
+        const shieldEdge = fontSize * 1.2;
+
         for (let i = 0; i < drops.length; i++) {
           let text = Math.random() > 0.5 ? '0' : '1';
-          ctx.fillText(text, i * fontSize, drops[i] * fontSize);
-          if (drops[i] * fontSize > height && Math.random() > 0.975) {
+          const baseX = i * fontSize;
+          const baseY = drops[i] * fontSize;
+          const dx = baseX - shieldCenterX;
+          const dy = baseY - shieldCenterY;
+          const distance = Math.hypot(dx, dy);
+
+          if (shieldActive && distance < shieldRadius * 0.88) {
+            drops[i] += 2;
+            continue;
+          }
+
+          let drawX = baseX;
+          let drawY = baseY;
+          if (shieldActive && distance < shieldRadius + shieldEdge) {
+            const edgeFactor = clamp((shieldRadius + shieldEdge - distance) / shieldEdge, 0, 1);
+            const pushDir = dx === 0 ? (i % 2 === 0 ? 1 : -1) : Math.sign(dx);
+            drawX += pushDir * edgeFactor * fontSize * 1.35;
+            drawY -= edgeFactor * fontSize * 0.42;
+          }
+
+          ctx.fillText(text, drawX, drawY);
+          if (drops[i] * fontSize > height && Math.random() > rainResetChance) {
             drops[i] = 0;
           }
           drops[i]++;
         }
+
+        if (finalSequenceActive && finalParticles.length > 0) {
+          const elapsed = performance.now() - finalTimelineStart;
+
+          if (elapsed >= explodeDurationMs + gatherDurationMs) {
+            finalPhase = 'hold';
+          } else if (elapsed >= explodeDurationMs) {
+            finalPhase = 'gather';
+          }
+
+          ctx.font = `${Math.max(14, fontSize + 1)}px ${matrixTechFont}`;
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+
+          for (let i = 0; i < finalParticles.length; i++) {
+            const particle = finalParticles[i];
+
+            if (finalPhase === 'explode') {
+              particle.vx *= 0.986;
+              particle.vy = particle.vy * 0.986 + 0.04;
+              particle.x += particle.vx;
+              particle.y += particle.vy;
+            } else if (finalPhase === 'gather') {
+              const gatherProgress = clamp((elapsed - explodeDurationMs) / gatherDurationMs, 0, 1);
+              const pull = 0.022 + 0.038 * easeOutCubic(gatherProgress);
+              particle.vx += (particle.tx - particle.x) * pull;
+              particle.vy += (particle.ty - particle.y) * pull;
+              particle.vx *= 0.79;
+              particle.vy *= 0.79;
+              particle.x += particle.vx;
+              particle.y += particle.vy;
+            } else {
+              const holdPulse = (Math.sin(performance.now() * 0.012 + i * 0.08) + 1) * 0.5;
+              particle.x += (particle.tx - particle.x) * 0.2;
+              particle.y += (particle.ty - particle.y) * 0.2;
+              particle.alpha = 0.72 + holdPulse * 0.28;
+            }
+
+            ctx.fillStyle = `rgba(0,255,65,${particle.alpha})`;
+            ctx.fillText(particle.char, particle.x, particle.y);
+          }
+
+          if (elapsed >= explodeDurationMs + gatherDurationMs + holdDurationMs) {
+            finalParticles = [];
+            clearInterval(animation);
+            clearInterval(timer);
+            if (gazeRaf) {
+              window.cancelAnimationFrame(gazeRaf);
+            }
+            featureOverlay.removeEventListener('pointermove', onPointerMove);
+            featureOverlay.remove();
+            window.location.reload();
+          }
+        }
       }
 
       let animation = setInterval(drawFeature, 50);
-      let secondsLeft = Math.ceil(durationMs / 1000);
+      let secondsLeft = totalSeconds;
       timerDiv.style.position = 'fixed';
       timerDiv.style.top = '20px';
       timerDiv.style.right = '40px';
@@ -212,18 +512,60 @@ function initSessionModal() {
       timerDiv.style.font = 'bold 2rem monospace';
       timerDiv.style.zIndex = '10001';
       timerDiv.textContent = `Please wait: ${secondsLeft}s`;
+      matrixFace.classList.add('is-happy');
+      applyFacePhase(secondsLeft);
 
       let timer = setInterval(() => {
         secondsLeft--;
+        if (secondsLeft < 0) {
+          return;
+        }
+
+        if (secondsLeft <= climaxStartSeconds) {
+          matrixFace.classList.add('matrix-bomb-mode');
+          const bombIntensity = clamp((climaxStartSeconds - secondsLeft) / climaxStartSeconds, 0, 1);
+          matrixFace.style.setProperty('--bomb-intensity', bombIntensity.toFixed(3));
+          if (secondsLeft <= Math.max(4, Math.floor(climaxStartSeconds * 0.45))) {
+            matrixFace.classList.add('matrix-bomb-peak');
+          }
+        }
+
         timerDiv.textContent = `Please wait: ${secondsLeft}s`;
+        applyFacePhase(secondsLeft);
+
+        if (!captionTeased && secondsLeft <= captionTeaseSecondsLeft) {
+          captionTeased = true;
+          introCaption?.classList.add('is-teasing');
+          window.setTimeout(() => {
+            introCaption?.classList.remove('is-teasing');
+          }, 420);
+        }
+
+        if (!captionShown && secondsLeft <= captionRevealSecondsLeft) {
+          captionShown = true;
+          introCaption?.classList.add('is-visible');
+        }
+
+        if (secondsLeft === 0 && !didFinale) {
+          didFinale = true;
+          matrixFace.classList.add('matrix-finale');
+          timerDiv.textContent = 'Please wait: 0s';
+          startFinalSequence();
+        }
       }, 1000);
 
-      window.setTimeout(() => {
-        clearInterval(animation);
-        clearInterval(timer);
-        featureOverlay.remove();
-        window.location.reload();
-      }, durationMs + 200);
+      if (prefersReducedMotion) {
+        window.setTimeout(() => {
+          clearInterval(animation);
+          clearInterval(timer);
+          if (gazeRaf) {
+            window.cancelAnimationFrame(gazeRaf);
+          }
+          featureOverlay.removeEventListener('pointermove', onPointerMove);
+          featureOverlay.remove();
+          window.location.reload();
+        }, durationMs + 650);
+      }
     }
 
     const modalObserver = new MutationObserver(() => {

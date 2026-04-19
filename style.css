@@ -11,6 +11,492 @@
     align-items: center;
     justify-content: center;
 }
+.matrix-face {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    --matrix-progress: 1;
+    --matrix-intensity: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    z-index: 10001;
+    pointer-events: none;
+}
+.matrix-intro-caption {
+    margin-top: 0.5rem;
+    font-family: 'Orbitron', 'Share Tech Mono', sans-serif;
+    font-size: clamp(1.7rem, 3.8vw, 3rem);
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: rgba(196, 255, 222, 0.95);
+    text-shadow: 0 0 14px rgba(0, 255, 65, 0.45), 0 0 2px #000;
+    opacity: 0;
+    transform: translateY(14px) scale(0.98);
+    filter: blur(1px);
+    transition: opacity 520ms cubic-bezier(0.22, 0.61, 0.36, 1), transform 520ms cubic-bezier(0.22, 0.61, 0.36, 1), filter 460ms ease;
+    pointer-events: none;
+}
+.matrix-caption-letter,
+.matrix-caption-gap {
+    display: inline-block;
+}
+.matrix-caption-letter {
+    opacity: 0.08;
+    transform: translateY(3px) scale(0.96);
+    filter: blur(1.4px);
+    text-shadow: 0 0 2px rgba(0, 255, 65, 0.2), 0 0 10px rgba(0, 255, 65, 0.08);
+    will-change: opacity, transform, filter, text-shadow;
+}
+.matrix-caption-gap {
+    width: 0.42em;
+}
+.matrix-intro-caption.is-visible {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+}
+.matrix-intro-caption.is-teasing {
+    opacity: 0.26;
+    transform: translateY(5px) scale(0.995);
+    filter: blur(0.7px);
+    text-shadow: 0 0 10px rgba(0, 255, 65, 0.45), 0 0 20px rgba(0, 255, 65, 0.24);
+}
+.matrix-intro-caption.is-teasing .matrix-caption-letter {
+    animation: matrixCaptionTease 360ms ease-out 1;
+    animation-delay: calc(var(--letter-index, 0) * 9ms);
+}
+.matrix-intro-caption.is-visible .matrix-caption-letter {
+    animation: matrixCaptionGhostLetter 760ms cubic-bezier(0.2, 0.75, 0.25, 1) forwards;
+    animation-delay: calc(var(--letter-index, 0) * 58ms);
+}
+.matrix-intro-caption.matrix-caption-explode {
+    animation: matrixCaptionExplode 320ms ease-out forwards;
+}
+.matrix-head {
+    width: min(68vw, 420px);
+    height: min(68vw, 420px);
+    border: 3px solid rgba(0, 255, 65, 0.72);
+    border-radius: 50%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.8rem;
+    position: relative;
+    background: radial-gradient(circle at 50% 42%, rgba(0, 255, 65, 0.08), rgba(0, 0, 0, 0.02) 48%, rgba(0, 0, 0, 0.36) 100%);
+    box-shadow: 0 0 36px rgba(0, 255, 65, 0.24), inset 0 0 28px rgba(0, 255, 65, 0.18);
+    transition: box-shadow 320ms ease, border-color 320ms ease, background 320ms ease, transform 280ms ease;
+    filter: saturate(calc(1 + var(--matrix-intensity) * 0.55)) brightness(calc(1 + var(--matrix-intensity) * 0.15));
+}
+.matrix-head::before {
+    content: '';
+    position: absolute;
+    inset: 12px;
+    border-radius: 50%;
+    border: 1px dashed rgba(0, 255, 65, 0.34);
+    opacity: 0.7;
+}
+.matrix-head::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: radial-gradient(circle at 50% 20%, rgba(255, 255, 255, 0.1), transparent 32%);
+    pointer-events: none;
+}
+.matrix-eyebrows {
+    width: 300px;
+    height: 80px;
+    filter: drop-shadow(0 0 8px #00FF41);
+    opacity: 0.88;
+    transition: opacity 240ms ease, filter 320ms ease;
+}
+.matrix-eyebrow-left,
+.matrix-eyebrow-right {
+    transition: all 0.4s cubic-bezier(0.22, 0.61, 0.36, 1);
+    transform-origin: center;
+    transform-box: fill-box;
+}
+.matrix-eyebrow-left {
+    transform: translateY(6px) rotate(-12deg);
+}
+.matrix-eyebrow-right {
+    transform: translateY(6px) rotate(12deg);
+}
+.is-happy .matrix-eyebrow-left {
+    transform: translateY(-8px) rotate(-3deg);
+}
+.is-happy .matrix-eyebrow-right {
+    transform: translateY(-8px) rotate(3deg);
+}
+.matrix-eyes-container {
+    display: flex;
+    gap: 3rem;
+    z-index: 10001;
+    pointer-events: none;
+    transition: transform 180ms linear;
+}
+.matrix-eye {
+    width: 100px;
+    height: 100px;
+    border: 3px solid #00FF41;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    box-shadow: 0 0 20px #00FF41, inset 0 0 15px rgba(0, 255, 65, 0.2);
+    animation: eyeBlink 3s infinite;
+    transition: box-shadow 260ms ease, border-color 260ms ease, transform 260ms ease;
+}
+.matrix-pupil {
+    width: 24px;
+    height: 24px;
+    background: #00FF41;
+    border-radius: 50%;
+    box-shadow: 0 0 10px #00FF41;
+    animation: pupilScan 4s infinite ease-in-out;
+    position: relative;
+    transition: box-shadow 260ms ease, transform 260ms ease;
+}
+.matrix-mouth {
+    width: 100px;
+    height: 50px;
+    opacity: 0;
+    transition: opacity 0.6s cubic-bezier(0.22, 0.61, 0.36, 1);
+    filter: drop-shadow(0 0 8px #00FF41);
+}
+.matrix-nose {
+    width: 14px;
+    height: 10px;
+    border-radius: 50%;
+    border: 2px solid rgba(0, 255, 65, 0.68);
+    box-shadow: 0 0 8px rgba(0, 255, 65, 0.45);
+    margin-top: -0.15rem;
+}
+.is-happy .matrix-mouth {
+    opacity: 1;
+}
+.matrix-phase-detection .matrix-head {
+    border-color: rgba(0, 255, 65, 0.62);
+    box-shadow: 0 0 20px rgba(0, 255, 65, 0.18), inset 0 0 18px rgba(0, 255, 65, 0.14);
+}
+.matrix-phase-detection .matrix-eye {
+    animation-duration: 3.6s;
+    box-shadow: 0 0 14px #00FF41, inset 0 0 9px rgba(0, 255, 65, 0.16);
+}
+.matrix-phase-detection .matrix-pupil {
+    animation-duration: 5.2s;
+}
+.matrix-phase-recognition .matrix-eyebrows {
+    opacity: 0.95;
+}
+.matrix-phase-recognition .matrix-eyebrow-left {
+    transform: translateY(2px) rotate(-9deg);
+}
+.matrix-phase-recognition .matrix-eyebrow-right {
+    transform: translateY(2px) rotate(9deg);
+}
+.matrix-phase-recognition .matrix-pupil {
+    animation-duration: 3.5s;
+}
+.matrix-phase-recognition .matrix-head {
+    border-color: rgba(0, 255, 65, 0.75);
+    box-shadow: 0 0 30px rgba(0, 255, 65, 0.24), inset 0 0 24px rgba(0, 255, 65, 0.2);
+}
+.matrix-phase-interrogation .matrix-eye {
+    animation-duration: 2.3s;
+    box-shadow: 0 0 24px #00FF41, inset 0 0 18px rgba(0, 255, 65, 0.24);
+}
+.matrix-phase-interrogation .matrix-head {
+    border-color: rgba(0, 255, 65, 0.82);
+    box-shadow: 0 0 38px rgba(0, 255, 65, 0.3), inset 0 0 28px rgba(0, 255, 65, 0.22);
+}
+.matrix-phase-interrogation .matrix-pupil {
+    animation-duration: 2.5s;
+}
+.matrix-phase-interrogation + .matrix-timer,
+.matrix-phase-pressure + .matrix-timer,
+.matrix-phase-instability + .matrix-timer {
+    animation: matrixTimerPulse 0.95s ease-in-out infinite;
+}
+.matrix-phase-pressure .matrix-eyebrow-left {
+    transform: translateY(10px) rotate(-16deg);
+}
+.matrix-phase-pressure .matrix-eyebrow-right {
+    transform: translateY(10px) rotate(16deg);
+}
+.matrix-phase-pressure .matrix-eye {
+    box-shadow: 0 0 30px #00FF41, inset 0 0 22px rgba(0, 255, 65, 0.28);
+    transform: translateY(-1px);
+}
+.matrix-phase-pressure .matrix-head {
+    transform: scale(1.01);
+    box-shadow: 0 0 50px rgba(0, 255, 65, 0.34), inset 0 0 34px rgba(0, 255, 65, 0.24);
+}
+.matrix-phase-instability {
+    animation: matrixGlitch 0.32s steps(2, end) infinite;
+}
+.matrix-phase-instability .matrix-head {
+    border-color: rgba(0, 255, 65, 0.95);
+    box-shadow: 0 0 56px rgba(0, 255, 65, 0.42), inset 0 0 38px rgba(0, 255, 65, 0.28);
+}
+.matrix-phase-instability .matrix-eye:first-child {
+    transform: translateX(-4px) scaleX(0.98);
+}
+.matrix-phase-instability .matrix-eye:last-child {
+    transform: translateX(3px) scaleX(1.02);
+}
+.matrix-phase-release .matrix-eye {
+    box-shadow: 0 0 18px #00FF41, inset 0 0 13px rgba(0, 255, 65, 0.2);
+}
+.matrix-phase-release .matrix-head {
+    border-color: rgba(0, 255, 65, 0.78);
+    box-shadow: 0 0 28px rgba(0, 255, 65, 0.25), inset 0 0 18px rgba(0, 255, 65, 0.18);
+}
+.matrix-finale .matrix-head {
+    animation: matrixFinaleFlash 420ms ease-out 1;
+}
+.matrix-finale .matrix-eye {
+    animation-duration: 2.1s;
+    box-shadow: 0 0 34px #00FF41, inset 0 0 28px rgba(0, 255, 65, 0.34);
+}
+.matrix-finale + .matrix-timer {
+    color: #ffffff;
+    animation: matrixFinaleTimer 420ms ease-out 1;
+    text-shadow: 0 0 16px #00FF41, 0 0 4px #000;
+}
+.matrix-face.matrix-bomb-mode .matrix-head {
+    animation: matrixBombShake 90ms linear infinite;
+    border-color: rgba(0, 255, 65, calc(0.75 + var(--bomb-intensity, 0) * 0.24));
+}
+.matrix-face.matrix-bomb-mode + .matrix-timer {
+    animation: matrixTimerPulse 0.56s ease-in-out infinite;
+}
+.matrix-face.matrix-bomb-peak .matrix-head {
+    animation-duration: 54ms;
+    box-shadow: 0 0 74px rgba(0, 255, 65, 0.54), inset 0 0 44px rgba(0, 255, 65, 0.32);
+}
+.matrix-face.matrix-bomb-exploded .matrix-head {
+    opacity: 0;
+    transform: scale(0.5);
+    transition: opacity 280ms ease, transform 320ms ease;
+}
+.matrix-rain-overlay.matrix-final-sequence .matrix-face {
+    pointer-events: none;
+}
+@keyframes eyeBlink {
+    0%, 10%, 100% {
+        transform: scaleY(1);
+    }
+    5% {
+        transform: scaleY(0.1);
+    }
+}
+@keyframes pupilScan {
+    0% {
+        transform: translate(0, 0);
+    }
+    25% {
+        transform: translate(20px, -15px);
+    }
+    50% {
+        transform: translate(-20px, 15px);
+    }
+    75% {
+        transform: translate(15px, 20px);
+    }
+    100% {
+        transform: translate(0, 0);
+    }
+}
+@keyframes matrixTimerPulse {
+    0%,
+    100% {
+        opacity: 0.9;
+        transform: scale(1);
+        text-shadow: 0 0 8px #EA580C, 0 0 2px #000;
+    }
+    50% {
+        opacity: 1;
+        transform: scale(1.05);
+        text-shadow: 0 0 14px #00FF41, 0 0 6px #000;
+    }
+}
+@keyframes matrixGlitch {
+    0%,
+    100% {
+        transform: translate(-50%, -50%);
+        filter: none;
+    }
+    25% {
+        transform: translate(-49.2%, -50.4%);
+        filter: hue-rotate(8deg);
+    }
+    50% {
+        transform: translate(-50.6%, -49.8%);
+        filter: contrast(1.15);
+    }
+    75% {
+        transform: translate(-49.7%, -50.2%);
+        filter: hue-rotate(-8deg);
+    }
+}
+@keyframes matrixFinaleFlash {
+    0% {
+        transform: scale(1.01);
+        box-shadow: 0 0 50px rgba(0, 255, 65, 0.36), inset 0 0 34px rgba(0, 255, 65, 0.24);
+    }
+    50% {
+        transform: scale(1.04);
+        box-shadow: 0 0 86px rgba(0, 255, 65, 0.62), inset 0 0 42px rgba(0, 255, 65, 0.34);
+    }
+    100% {
+        transform: scale(1.02);
+        box-shadow: 0 0 58px rgba(0, 255, 65, 0.44), inset 0 0 38px rgba(0, 255, 65, 0.3);
+    }
+}
+@keyframes matrixFinaleTimer {
+    0% {
+        transform: scale(1);
+        opacity: 0.8;
+    }
+    50% {
+        transform: scale(1.12);
+        opacity: 1;
+    }
+    100% {
+        transform: scale(1.03);
+        opacity: 1;
+    }
+}
+@keyframes matrixBombShake {
+    0% {
+        transform: translate(calc(var(--bomb-intensity, 0) * -4px), calc(var(--bomb-intensity, 0) * 2px)) rotate(calc(var(--bomb-intensity, 0) * -0.8deg)) scale(calc(1 + var(--bomb-intensity, 0) * 0.02));
+    }
+    25% {
+        transform: translate(calc(var(--bomb-intensity, 0) * 5px), calc(var(--bomb-intensity, 0) * -3px)) rotate(calc(var(--bomb-intensity, 0) * 0.7deg)) scale(calc(1 + var(--bomb-intensity, 0) * 0.022));
+    }
+    50% {
+        transform: translate(calc(var(--bomb-intensity, 0) * -6px), calc(var(--bomb-intensity, 0) * 4px)) rotate(calc(var(--bomb-intensity, 0) * -1deg)) scale(calc(1 + var(--bomb-intensity, 0) * 0.024));
+    }
+    75% {
+        transform: translate(calc(var(--bomb-intensity, 0) * 6px), calc(var(--bomb-intensity, 0) * -4px)) rotate(calc(var(--bomb-intensity, 0) * 1deg)) scale(calc(1 + var(--bomb-intensity, 0) * 0.026));
+    }
+    100% {
+        transform: translate(calc(var(--bomb-intensity, 0) * -4px), calc(var(--bomb-intensity, 0) * 3px)) rotate(calc(var(--bomb-intensity, 0) * -0.7deg)) scale(calc(1 + var(--bomb-intensity, 0) * 0.02));
+    }
+}
+@keyframes matrixCaptionExplode {
+    0% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+        filter: blur(0);
+    }
+    40% {
+        opacity: 1;
+        transform: translateY(-2px) scale(1.05);
+        filter: brightness(1.35);
+    }
+    100% {
+        opacity: 0;
+        transform: translateY(-10px) scale(1.12);
+        filter: blur(2px);
+    }
+}
+@keyframes matrixCaptionGhostLetter {
+    0% {
+        opacity: 0.08;
+        transform: translateY(3px) scale(0.95);
+        filter: blur(1.6px);
+        text-shadow: 0 0 1px rgba(0, 255, 65, 0.1), 0 0 4px rgba(0, 255, 65, 0.08);
+    }
+    35% {
+        opacity: 0.52;
+        transform: translateY(-1px) scale(1.03);
+        filter: blur(0.7px);
+        text-shadow: 0 0 10px rgba(0, 255, 65, 0.5), 0 0 20px rgba(0, 255, 65, 0.28);
+    }
+    65% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+        filter: blur(0.15px);
+        text-shadow: 0 0 16px rgba(0, 255, 65, 0.62), 0 0 26px rgba(0, 255, 65, 0.34);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+        filter: blur(0);
+        text-shadow: 0 0 14px rgba(0, 255, 65, 0.5), 0 0 18px rgba(0, 255, 65, 0.3);
+    }
+}
+@keyframes matrixCaptionTease {
+    0% {
+        opacity: 0.02;
+        filter: blur(1.6px);
+    }
+    45% {
+        opacity: 0.45;
+        filter: blur(0.8px);
+    }
+    100% {
+        opacity: 0.1;
+        filter: blur(1.2px);
+    }
+}
+@media (prefers-reduced-motion: reduce) {
+    .matrix-phase-instability {
+        animation: none;
+    }
+
+    .matrix-finale .matrix-head,
+    .matrix-finale + .matrix-timer {
+        animation: none;
+    }
+
+    .matrix-eyes-container {
+        transition: none;
+    }
+
+    .matrix-intro-caption {
+        transition: opacity 220ms ease;
+        transform: none;
+        filter: none;
+    }
+
+    .matrix-intro-caption.matrix-caption-explode {
+        animation: none;
+        opacity: 0;
+    }
+}
+@media (max-width: 768px) {
+    .matrix-head {
+        width: min(86vw, 350px);
+        height: min(86vw, 350px);
+        gap: 0.55rem;
+    }
+
+    .matrix-eyes-container {
+        gap: 1.65rem;
+    }
+
+    .matrix-eye {
+        width: 80px;
+        height: 80px;
+    }
+
+    .matrix-intro-caption {
+        letter-spacing: 0.12em;
+        font-size: clamp(1.25rem, 4.8vw, 1.75rem);
+        text-align: center;
+        max-width: 88vw;
+    }
+
+}
 .matrix-timer {
     position: fixed;
     top: 20px;
@@ -25,7 +511,7 @@
    "The Imarati Upgrade"
    ========================================================================== */
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&family=Permanent+Marker&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Orbitron:wght@600;700&family=Playfair+Display:wght@600;700&family=Permanent+Marker&family=Share+Tech+Mono&display=swap');
 
 :root {
     /* Premium Color System */
@@ -118,7 +604,7 @@ nav::after {
     right: 0;
     bottom: -10px;
     height: 10px;
-    background: linear-gradient(180deg, rgba(2, 6, 23, 0.14), rgba(2, 6, 23, 0));
+    background: linear-gradient(180deg, rgba(2, 6, 23, 0.08), rgba(2, 6, 23, 0));
     pointer-events: none;
     opacity: 0;
     transition: opacity 240ms ease;
@@ -129,7 +615,7 @@ body.nav-is-scrolled nav {
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
     border-bottom: 1px solid rgba(226, 232, 240, 0.9);
-    box-shadow: 0 1px 0 rgba(2, 6, 23, 0.32), 0 12px 28px rgba(2, 6, 23, 0.2);
+    box-shadow: 0 1px 0 rgba(2, 6, 23, 0.2), 0 10px 22px rgba(2, 6, 23, 0.12);
 }
 
 body.nav-is-scrolled nav::before {
@@ -137,7 +623,7 @@ body.nav-is-scrolled nav::before {
 }
 
 body.nav-is-scrolled nav::after {
-    opacity: 0.48;
+    opacity: 0.28;
 }
 
 .logo h1,
@@ -345,7 +831,7 @@ h2 {
 .hero {
     padding: 80px 5%;
     text-align: center;
-    background: radial-gradient(circle at top, #ffffff 0%, var(--bg-light) 100%);
+    background: var(--bg-light);
 }
 
 .hero-content h2 {
