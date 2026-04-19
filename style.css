@@ -1638,6 +1638,14 @@ form button[type="submit"]:hover {
     color: var(--text-muted);
 }
 
+.contact-tone {
+    margin-top: -10px;
+    margin-bottom: 18px;
+    color: #9a3412;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+}
+
 .contact-info-section {
     background: var(--text-dark);
     color: var(--surface-white);
@@ -1664,6 +1672,12 @@ form button[type="submit"]:hover {
     border: 1px solid rgba(255, 255, 255, 0.12);
     border-radius: 10px;
     padding: 16px;
+    transition: var(--transition);
+}
+
+.contact-method-card:hover {
+    transform: translateY(-2px);
+    border-color: rgba(255, 255, 255, 0.28);
 }
 
 .contact-method-card h3 {
@@ -1677,6 +1691,56 @@ form button[type="submit"]:hover {
     color: #E2E8F0;
     margin: 0;
     text-align: left;
+}
+
+.contact-emoji {
+    margin-right: 4px;
+}
+
+.contact-label {
+    color: #fdba74;
+    font-size: 0.84rem;
+    margin-bottom: 6px;
+}
+
+.contact-value {
+    font-size: 0.98rem;
+    font-weight: 600;
+}
+
+.contact-value a {
+    color: var(--surface-white);
+    text-decoration: none;
+    border-bottom: 1px dashed rgba(255, 255, 255, 0.35);
+}
+
+.contact-value a:hover {
+    color: #fdba74;
+    border-bottom-color: #fdba74;
+}
+
+.contact-method-link {
+    display: inline-flex;
+    margin-top: 10px;
+    padding: 8px 12px;
+    border-radius: 999px;
+    background: #fff7ed;
+    color: #9a3412;
+    text-decoration: none;
+    font-size: 0.84rem;
+    font-weight: 700;
+    border: 1px solid #fdba74;
+    transition: var(--transition);
+}
+
+.contact-method-link:hover {
+    background: #ffedd5;
+}
+
+.contact-method-card.is-featured-email {
+    background: linear-gradient(160deg, rgba(234, 88, 12, 0.22), rgba(15, 23, 42, 0.28));
+    border-color: rgba(253, 186, 116, 0.7);
+    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.28);
 }
 
 .contact-info-section ul {
