@@ -20,6 +20,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initWorkerProfileModal();
   initKenyaFrontEndLayer();
   initEscrowDemo();
+  initFooterHologram();
 });
 
 // normalizeKey, readStorageJson, writeStorageJson, expandSearchTerm, SERVICE_LABEL_MAP
@@ -1801,6 +1802,163 @@ function initRevealAnimation() {
   );
 
   reveals.forEach((el) => observer.observe(el));
+}
+
+function initFooterHologram() {
+  const footer = document.querySelector('footer');
+  if (!footer) return;
+  if (footer.querySelector('[data-jk-hologram]')) return;
+
+  const defaultText = 'Jua Kali Konnect';
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  const section = document.createElement('section');
+  section.className = 'jk-footer-hologram';
+  section.dataset.jkHologram = 'true';
+
+  const stage = document.createElement('div');
+  stage.className = 'jk-holo-stage';
+  stage.setAttribute('aria-label', 'Animated Jua Kali Konnect signature');
+
+  const rig = document.createElement('div');
+  rig.className = 'jk-holo-rig';
+  rig.dataset.jkHoloRig = 'true';
+
+  stage.appendChild(rig);
+  section.appendChild(stage);
+  footer.insertBefore(section, footer.firstChild);
+
+  let glyphs = [];
+  let customTransforms = {};
+  let rafId = null;
+
+  const applyTransform = (glyph, transform) => {
+    glyph.style.setProperty('--tx', `${transform.tx || 0}px`);
+    glyph.style.setProperty('--ty', `${transform.ty || 0}px`);
+    glyph.style.setProperty('--tz', `${transform.tz || 0}px`);
+    glyph.style.setProperty('--rx', `${transform.rx || 0}deg`);
+    glyph.style.setProperty('--ry', `${transform.ry || 0}deg`);
+    glyph.style.setProperty('--rz', `${transform.rz || 0}deg`);
+    if (typeof transform.glow === 'number') {
+      glyph.style.setProperty('--glow-alpha', String(transform.glow));
+    }
+  };
+
+  const buildText = (text) => {
+    rig.innerHTML = '';
+    glyphs = [];
+
+    Array.from(text).forEach((char, index) => {
+      const glyph = document.createElement('span');
+      const glyphId = `g${String(index).padStart(2, '0')}`;
+      glyph.className = 'jk-holo-glyph';
+      glyph.dataset.glyphId = glyphId;
+      glyph.dataset.glyphIndex = String(index);
+      glyph.dataset.glyphChar = char === ' ' ? 'space' : char;
+      glyph.dataset.glyphCode = String(char.charCodeAt(0));
+
+      if (char === ' ') {
+        glyph.classList.add('is-space');
+        glyph.innerHTML = '<span class="jk-holo-face">&nbsp;</span>';
+      } else {
+        glyph.innerHTML = `
+          <span class="jk-holo-echo jk-holo-echo-a" aria-hidden="true">${char}</span>
+          <span class="jk-holo-echo jk-holo-echo-b" aria-hidden="true">${char}</span>
+          <span class="jk-holo-face">${char}</span>
+        `;
+      }
+
+      rig.appendChild(glyph);
+      glyphs.push({ id: glyphId, index, char, element: glyph });
+    });
+  };
+
+  const animate = (time) => {
+    glyphs.forEach((glyphMeta) => {
+      if (glyphMeta.char === ' ') return;
+
+      const custom = customTransforms[glyphMeta.id] || {};
+      const driftY = Math.sin((time * 0.0018) + (glyphMeta.index * 0.45)) * 2.4;
+      const driftZ = Math.cos((time * 0.00135) + (glyphMeta.index * 0.37)) * 14;
+      const driftRy = Math.sin((time * 0.0011) + (glyphMeta.index * 0.28)) * 7;
+
+      applyTransform(glyphMeta.element, {
+        tx: (custom.tx || 0),
+        ty: (custom.ty || 0) + driftY,
+        tz: (custom.tz || 0) + driftZ,
+        rx: custom.rx || 0,
+        ry: (custom.ry || 0) + driftRy,
+        rz: custom.rz || 0,
+        glow: custom.glow
+      });
+    });
+
+    rafId = window.requestAnimationFrame(animate);
+  };
+
+  const startAnimation = () => {
+    if (prefersReducedMotion) {
+      glyphs.forEach((glyphMeta) => {
+        applyTransform(glyphMeta.element, customTransforms[glyphMeta.id] || {});
+      });
+      return;
+    }
+
+    if (rafId) window.cancelAnimationFrame(rafId);
+    rafId = window.requestAnimationFrame(animate);
+  };
+
+  buildText(defaultText);
+  startAnimation();
+
+  window.jkHologram = {
+    getGlyphMap() {
+      return glyphs.map((glyphMeta) => ({
+        id: glyphMeta.id,
+        index: glyphMeta.index,
+        char: glyphMeta.char
+      }));
+    },
+    moveGlyph(id, transform = {}) {
+      const exists = glyphs.some((glyphMeta) => glyphMeta.id === id);
+      if (!exists) return false;
+      customTransforms[id] = { ...(customTransforms[id] || {}), ...transform };
+      if (prefersReducedMotion) {
+        const target = glyphs.find((glyphMeta) => glyphMeta.id === id);
+        if (target) applyTransform(target.element, customTransforms[id]);
+      }
+      return true;
+    },
+    moveWord(transform = {}) {
+      glyphs.forEach((glyphMeta) => {
+        if (glyphMeta.char === ' ') return;
+        customTransforms[glyphMeta.id] = { ...(customTransforms[glyphMeta.id] || {}), ...transform };
+        if (prefersReducedMotion) {
+          applyTransform(glyphMeta.element, customTransforms[glyphMeta.id]);
+        }
+      });
+      return true;
+    },
+    setEchoDepth(depth = 1) {
+      const safeDepth = Math.max(0.4, Math.min(2.4, Number(depth) || 1));
+      section.style.setProperty('--echo-depth', safeDepth.toFixed(2));
+      return safeDepth;
+    },
+    setText(nextText = defaultText) {
+      const text = String(nextText).trim() || defaultText;
+      customTransforms = {};
+      buildText(text);
+      startAnimation();
+      return text;
+    },
+    reset() {
+      customTransforms = {};
+      section.style.removeProperty('--echo-depth');
+      buildText(defaultText);
+      startAnimation();
+      return true;
+    }
+  };
 }
 
 function initHeroHeadlineAssembly() {

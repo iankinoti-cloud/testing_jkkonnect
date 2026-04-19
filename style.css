@@ -1877,6 +1877,80 @@ footer p {
     font-size: 0.95rem;
 }
 
+.jk-footer-hologram {
+    --echo-depth: 1;
+    margin: 0 auto 16px;
+    padding: 10px 12px 6px;
+    border-radius: 12px;
+    border: 1px solid rgba(253, 186, 116, 0.25);
+    background: linear-gradient(180deg, rgba(15, 23, 42, 0.25), rgba(15, 23, 42, 0.05));
+}
+
+.jk-holo-stage {
+    perspective: 1100px;
+    transform-style: preserve-3d;
+    overflow: hidden;
+}
+
+.jk-holo-rig {
+    display: flex;
+    justify-content: center;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 0.02em;
+    letter-spacing: 0.01em;
+}
+
+.jk-holo-glyph {
+    position: relative;
+    display: inline-block;
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.2rem, 1.25rem + 1.1vw, 2.1rem);
+    font-weight: 700;
+    line-height: 1.15;
+    transform-style: preserve-3d;
+    transform: translate3d(var(--tx, 0px), var(--ty, 0px), var(--tz, 0px)) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) rotateZ(var(--rz, 0deg));
+    transition: transform 220ms ease;
+    --glow-alpha: 0.38;
+}
+
+.jk-holo-glyph.is-space {
+    width: 0.5em;
+}
+
+.jk-holo-face,
+.jk-holo-echo {
+    display: inline-block;
+    color: var(--brand-orange);
+}
+
+.jk-holo-face {
+    position: relative;
+    z-index: 3;
+    text-shadow:
+        0 0 8px rgba(234, 88, 12, var(--glow-alpha)),
+        0 0 22px rgba(234, 88, 12, calc(var(--glow-alpha) * 0.8));
+}
+
+.jk-holo-echo {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    opacity: 0.35;
+}
+
+.jk-holo-echo-a {
+    transform: translate3d(-1px, 1px, calc(var(--echo-depth) * -9px));
+    filter: blur(1px);
+}
+
+.jk-holo-echo-b {
+    transform: translate3d(1px, -1px, calc(var(--echo-depth) * -18px));
+    filter: blur(2px);
+    opacity: 0.26;
+}
+
 /* =========================================
    ANIMATIONS
    ========================================= */
@@ -2267,6 +2341,15 @@ footer p {
     .about-features .feature-card {
         padding: 28px 20px;
     }
+
+    .jk-footer-hologram {
+        margin-bottom: 10px;
+        padding: 8px 10px 4px;
+    }
+
+    .jk-holo-glyph {
+        font-size: clamp(1.02rem, 0.95rem + 1.6vw, 1.45rem);
+    }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -2298,6 +2381,13 @@ footer p {
     .about-features.is-in-view::before {
         animation: none;
         opacity: 1;
+    }
+
+    .jk-holo-glyph,
+    .jk-holo-face,
+    .jk-holo-echo {
+        transition: none;
+        animation: none;
     }
 
     .js-enabled .hero-headline.is-prepared .hero-word,
