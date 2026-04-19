@@ -1,4 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
+  initNavScrollDepth();
   initSessionModal();
   initAuthModal();
   initRoleBasedNavigation();
@@ -25,6 +26,31 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // normalizeKey, readStorageJson, writeStorageJson, expandSearchTerm, SERVICE_LABEL_MAP
 // are defined in utils.js — load that script before main.js
+
+function initNavScrollDepth() {
+  const nav = document.querySelector('nav');
+  if (!nav) return;
+
+  const enterThreshold = 12;
+  const exitThreshold = 4;
+
+  const handleNavScrollDepth = () => {
+    const scrolled = document.body.classList.contains('nav-is-scrolled');
+    const y = window.scrollY;
+
+    if (!scrolled && y > enterThreshold) {
+      document.body.classList.add('nav-is-scrolled');
+      return;
+    }
+
+    if (scrolled && y < exitThreshold) {
+      document.body.classList.remove('nav-is-scrolled');
+    }
+  };
+
+  handleNavScrollDepth();
+  window.addEventListener('scroll', handleNavScrollDepth, { passive: true });
+}
 
 function initRoleBasedNavigation() {
   const currentUser = readStorageJson('jk_current_user', null);
@@ -2566,20 +2592,57 @@ function initWorkerCardsMotion() {
       }
     }
 
-    // (8) Mouse-tilt 3D parallax
+    // (8) Mouse-tilt 3D parallax with smoothing
+    const maxTilt = 4.5;
+    const smoothing = 0.14;
+    let targetX = 0;
+    let targetY = 0;
+    let currentX = 0;
+    let currentY = 0;
+    let isHovering = false;
+    let rafId = null;
+
+    const renderTilt = () => {
+      currentX += (targetX - currentX) * smoothing;
+      currentY += (targetY - currentY) * smoothing;
+
+      const stillMoving = Math.abs(targetX - currentX) > 0.02 || Math.abs(targetY - currentY) > 0.02;
+      if (isHovering || stillMoving) {
+        card.style.transform = `translateY(-8px) perspective(800px) rotateX(${currentX.toFixed(2)}deg) rotateY(${currentY.toFixed(2)}deg)`;
+        rafId = window.requestAnimationFrame(renderTilt);
+        return;
+      }
+
+      card.style.transform = '';
+      rafId = null;
+    };
+
+    const startTiltLoop = () => {
+      if (rafId !== null) return;
+      rafId = window.requestAnimationFrame(renderTilt);
+    };
+
+    card.addEventListener('mouseenter', () => {
+      isHovering = true;
+      startTiltLoop();
+    });
+
     card.addEventListener('mousemove', e => {
       const rect = card.getBoundingClientRect();
       const cx = rect.left + rect.width / 2;
       const cy = rect.top + rect.height / 2;
       const dx = (e.clientX - cx) / (rect.width / 2);   // -1 → 1
       const dy = (e.clientY - cy) / (rect.height / 2);  // -1 → 1
-      const tiltX = (-dy * 7).toFixed(2);
-      const tiltY = (dx * 7).toFixed(2);
-      card.style.transform = `translateY(-8px) perspective(800px) rotateX(${tiltX}deg) rotateY(${tiltY}deg)`;
+      targetX = -dy * maxTilt;
+      targetY = dx * maxTilt;
+      startTiltLoop();
     });
 
     card.addEventListener('mouseleave', () => {
-      card.style.transform = '';
+      isHovering = false;
+      targetX = 0;
+      targetY = 0;
+      startTiltLoop();
     });
   });
 }
