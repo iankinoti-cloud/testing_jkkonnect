@@ -2533,9 +2533,54 @@ function initWorkerCardsMotion() {
   if (!cards.length) return;
 
   cards.forEach((card, index) => {
-    if (card.classList.contains('worker-card-enter')) return;
-    card.style.animationDelay = `${index * 60}ms`;
-    card.classList.add('worker-card-enter');
+    // Entrance animation
+    if (!card.classList.contains('worker-card-enter')) {
+      card.style.animationDelay = `${index * 60}ms`;
+      card.classList.add('worker-card-enter');
+    }
+
+    // (6) Availability pulse dot
+    const avail = (card.dataset.availability || '').toLowerCase();
+    if (avail.includes('available today')) {
+      const h3 = card.querySelector('h3');
+      if (h3 && !h3.querySelector('.worker-avail-dot')) {
+        const dot = document.createElement('span');
+        dot.className = 'worker-avail-dot';
+        dot.setAttribute('aria-label', 'Available today');
+        dot.title = 'Available today';
+        h3.appendChild(dot);
+      }
+    }
+
+    // (5) Bio peek strip
+    const bio = card.dataset.bio;
+    if (bio && !card.querySelector('.worker-bio-peek')) {
+      const peek = document.createElement('div');
+      peek.className = 'worker-bio-peek';
+      peek.textContent = bio;
+      const hireButton = card.querySelector('[data-hire-button]');
+      if (hireButton) {
+        card.insertBefore(peek, hireButton);
+      } else {
+        card.appendChild(peek);
+      }
+    }
+
+    // (8) Mouse-tilt 3D parallax
+    card.addEventListener('mousemove', e => {
+      const rect = card.getBoundingClientRect();
+      const cx = rect.left + rect.width / 2;
+      const cy = rect.top + rect.height / 2;
+      const dx = (e.clientX - cx) / (rect.width / 2);   // -1 → 1
+      const dy = (e.clientY - cy) / (rect.height / 2);  // -1 → 1
+      const tiltX = (-dy * 7).toFixed(2);
+      const tiltY = (dx * 7).toFixed(2);
+      card.style.transform = `translateY(-8px) perspective(800px) rotateX(${tiltX}deg) rotateY(${tiltY}deg)`;
+    });
+
+    card.addEventListener('mouseleave', () => {
+      card.style.transform = '';
+    });
   });
 }
 
