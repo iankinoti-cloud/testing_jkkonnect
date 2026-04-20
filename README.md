@@ -9,7 +9,7 @@ JuaKali Konnect is a platform that connects skilled Kenyan artisans ("fundis") w
 - **Sign Up / Login**: Modal-based auth with email and password.
 - **Role Selection**: Choose between a Client or Fundi account at registration.
 - **Password Reset**: 6-digit demo verification code flow.
-- **Persistent Sessions**: Accounts stored in `localStorage`. hence no backend required.
+- **Persistent Sessions**: Accounts stored in `localStorage`-hence no backend required.
 - **Role-Based Navigation**: Nav links adapt automatically (e.g. "Hire Fundis" becomes "Fundi Dashboard" for registered fundis).
 - **Logout**: Clears session and redirects appropriately.
 
