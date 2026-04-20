@@ -1,5 +1,5 @@
-/* Matrix rain overlay for lockout */
-.matrix-rain-overlay {
+/* ...existing code... */
+.overlay-x1 {
     position: fixed;
     top: 0;
     left: 0;
@@ -11,13 +11,13 @@
     align-items: center;
     justify-content: center;
 }
-.matrix-face {
+.face-x1 {
     position: fixed;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    --matrix-progress: 1;
-    --matrix-intensity: 0;
+    --progress-x1: 1;
+    --intensity-x1: 0;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -25,7 +25,7 @@
     z-index: 10001;
     pointer-events: none;
 }
-.matrix-intro-caption {
+.caption-x1 {
     margin-top: 0.5rem;
     font-family: 'Orbitron', 'Share Tech Mono', sans-serif;
     font-size: clamp(1.7rem, 3.8vw, 3rem);
@@ -40,43 +40,43 @@
     transition: opacity 520ms cubic-bezier(0.22, 0.61, 0.36, 1), transform 520ms cubic-bezier(0.22, 0.61, 0.36, 1), filter 460ms ease;
     pointer-events: none;
 }
-.matrix-caption-letter,
-.matrix-caption-gap {
+.letter-x1,
+.gap-x1 {
     display: inline-block;
 }
-.matrix-caption-letter {
+.letter-x1 {
     opacity: 0.08;
     transform: translateY(3px) scale(0.96);
     filter: blur(1.4px);
     text-shadow: 0 0 2px rgba(0, 255, 65, 0.2), 0 0 10px rgba(0, 255, 65, 0.08);
     will-change: opacity, transform, filter, text-shadow;
 }
-.matrix-caption-gap {
+.gap-x1 {
     width: 0.42em;
 }
-.matrix-intro-caption.is-visible {
+.caption-x1.is-visible {
     opacity: 1;
     transform: translateY(0) scale(1);
     filter: blur(0);
 }
-.matrix-intro-caption.is-teasing {
+.caption-x1.is-teasing {
     opacity: 0.26;
     transform: translateY(5px) scale(0.995);
     filter: blur(0.7px);
     text-shadow: 0 0 10px rgba(0, 255, 65, 0.45), 0 0 20px rgba(0, 255, 65, 0.24);
 }
-.matrix-intro-caption.is-teasing .matrix-caption-letter {
-    animation: matrixCaptionTease 360ms ease-out 1;
+.caption-x1.is-teasing .letter-x1 {
+    animation: captionTeaseX1 360ms ease-out 1;
     animation-delay: calc(var(--letter-index, 0) * 9ms);
 }
-.matrix-intro-caption.is-visible .matrix-caption-letter {
-    animation: matrixCaptionGhostLetter 760ms cubic-bezier(0.2, 0.75, 0.25, 1) forwards;
+.caption-x1.is-visible .letter-x1 {
+    animation: captionGhostLetterX1 760ms cubic-bezier(0.2, 0.75, 0.25, 1) forwards;
     animation-delay: calc(var(--letter-index, 0) * 58ms);
 }
-.matrix-intro-caption.matrix-caption-explode {
-    animation: matrixCaptionExplode 320ms ease-out forwards;
+.caption-x1.caption-explode-x1 {
+    animation: captionExplodeX1 320ms ease-out forwards;
 }
-.matrix-head {
+.head-x1 {
     width: min(68vw, 420px);
     height: min(68vw, 420px);
     border: 3px solid rgba(0, 255, 65, 0.72);
@@ -90,9 +90,9 @@
     background: radial-gradient(circle at 50% 42%, rgba(0, 255, 65, 0.08), rgba(0, 0, 0, 0.02) 48%, rgba(0, 0, 0, 0.36) 100%);
     box-shadow: 0 0 36px rgba(0, 255, 65, 0.24), inset 0 0 28px rgba(0, 255, 65, 0.18);
     transition: box-shadow 320ms ease, border-color 320ms ease, background 320ms ease, transform 280ms ease;
-    filter: saturate(calc(1 + var(--matrix-intensity) * 0.55)) brightness(calc(1 + var(--matrix-intensity) * 0.15));
+    filter: saturate(calc(1 + var(--intensity-x1) * 0.55)) brightness(calc(1 + var(--intensity-x1) * 0.15));
 }
-.matrix-head::before {
+.head-x1::before {
     content: '';
     position: absolute;
     inset: 12px;
@@ -100,7 +100,7 @@
     border: 1px dashed rgba(0, 255, 65, 0.34);
     opacity: 0.7;
 }
-.matrix-head::after {
+.head-x1::after {
     content: '';
     position: absolute;
     inset: 0;
@@ -108,39 +108,39 @@
     background: radial-gradient(circle at 50% 20%, rgba(255, 255, 255, 0.1), transparent 32%);
     pointer-events: none;
 }
-.matrix-eyebrows {
+.brows-x1 {
     width: 300px;
     height: 80px;
     filter: drop-shadow(0 0 8px #00FF41);
     opacity: 0.88;
     transition: opacity 240ms ease, filter 320ms ease;
 }
-.matrix-eyebrow-left,
-.matrix-eyebrow-right {
+.brow-l-x1,
+.brow-r-x1 {
     transition: all 0.4s cubic-bezier(0.22, 0.61, 0.36, 1);
     transform-origin: center;
     transform-box: fill-box;
 }
-.matrix-eyebrow-left {
+.brow-l-x1 {
     transform: translateY(6px) rotate(-12deg);
 }
-.matrix-eyebrow-right {
+.brow-r-x1 {
     transform: translateY(6px) rotate(12deg);
 }
-.is-happy .matrix-eyebrow-left {
+.is-happy .brow-l-x1 {
     transform: translateY(-8px) rotate(-3deg);
 }
-.is-happy .matrix-eyebrow-right {
+.is-happy .brow-r-x1 {
     transform: translateY(-8px) rotate(3deg);
 }
-.matrix-eyes-container {
+.eyes-x1 {
     display: flex;
     gap: 3rem;
     z-index: 10001;
     pointer-events: none;
     transition: transform 180ms linear;
 }
-.matrix-eye {
+.eye-x1 {
     width: 100px;
     height: 100px;
     border: 3px solid #00FF41;
@@ -150,27 +150,27 @@
     justify-content: center;
     position: relative;
     box-shadow: 0 0 20px #00FF41, inset 0 0 15px rgba(0, 255, 65, 0.2);
-    animation: eyeBlink 3s infinite;
+    animation: blinkX1 3s infinite;
     transition: box-shadow 260ms ease, border-color 260ms ease, transform 260ms ease;
 }
-.matrix-pupil {
+.pupil-x1 {
     width: 24px;
     height: 24px;
     background: #00FF41;
     border-radius: 50%;
     box-shadow: 0 0 10px #00FF41;
-    animation: pupilScan 4s infinite ease-in-out;
+    animation: scanX1 4s infinite ease-in-out;
     position: relative;
     transition: box-shadow 260ms ease, transform 260ms ease;
 }
-.matrix-mouth {
+.mouth-x1 {
     width: 100px;
     height: 50px;
     opacity: 0;
     transition: opacity 0.6s cubic-bezier(0.22, 0.61, 0.36, 1);
     filter: drop-shadow(0 0 8px #00FF41);
 }
-.matrix-nose {
+.nose-x1 {
     width: 14px;
     height: 10px;
     border-radius: 50%;
@@ -178,118 +178,118 @@
     box-shadow: 0 0 8px rgba(0, 255, 65, 0.45);
     margin-top: -0.15rem;
 }
-.is-happy .matrix-mouth {
+.is-happy .mouth-x1 {
     opacity: 1;
 }
-.matrix-phase-detection .matrix-head {
+.phase-x1a .head-x1 {
     border-color: rgba(0, 255, 65, 0.62);
     box-shadow: 0 0 20px rgba(0, 255, 65, 0.18), inset 0 0 18px rgba(0, 255, 65, 0.14);
 }
-.matrix-phase-detection .matrix-eye {
+.phase-x1a .eye-x1 {
     animation-duration: 3.6s;
     box-shadow: 0 0 14px #00FF41, inset 0 0 9px rgba(0, 255, 65, 0.16);
 }
-.matrix-phase-detection .matrix-pupil {
+.phase-x1a .pupil-x1 {
     animation-duration: 5.2s;
 }
-.matrix-phase-recognition .matrix-eyebrows {
+.phase-x1b .brows-x1 {
     opacity: 0.95;
 }
-.matrix-phase-recognition .matrix-eyebrow-left {
+.phase-x1b .brow-l-x1 {
     transform: translateY(2px) rotate(-9deg);
 }
-.matrix-phase-recognition .matrix-eyebrow-right {
+.phase-x1b .brow-r-x1 {
     transform: translateY(2px) rotate(9deg);
 }
-.matrix-phase-recognition .matrix-pupil {
+.phase-x1b .pupil-x1 {
     animation-duration: 3.5s;
 }
-.matrix-phase-recognition .matrix-head {
+.phase-x1b .head-x1 {
     border-color: rgba(0, 255, 65, 0.75);
     box-shadow: 0 0 30px rgba(0, 255, 65, 0.24), inset 0 0 24px rgba(0, 255, 65, 0.2);
 }
-.matrix-phase-interrogation .matrix-eye {
+.phase-x1c .eye-x1 {
     animation-duration: 2.3s;
     box-shadow: 0 0 24px #00FF41, inset 0 0 18px rgba(0, 255, 65, 0.24);
 }
-.matrix-phase-interrogation .matrix-head {
+.phase-x1c .head-x1 {
     border-color: rgba(0, 255, 65, 0.82);
     box-shadow: 0 0 38px rgba(0, 255, 65, 0.3), inset 0 0 28px rgba(0, 255, 65, 0.22);
 }
-.matrix-phase-interrogation .matrix-pupil {
+.phase-x1c .pupil-x1 {
     animation-duration: 2.5s;
 }
-.matrix-phase-interrogation + .matrix-timer,
-.matrix-phase-pressure + .matrix-timer,
-.matrix-phase-instability + .matrix-timer {
-    animation: matrixTimerPulse 0.95s ease-in-out infinite;
+.phase-x1c + .timer-x1,
+.phase-x1d + .timer-x1,
+.phase-x1e + .timer-x1 {
+    animation: timerPulseX1 0.95s ease-in-out infinite;
 }
-.matrix-phase-pressure .matrix-eyebrow-left {
+.phase-x1d .brow-l-x1 {
     transform: translateY(10px) rotate(-16deg);
 }
-.matrix-phase-pressure .matrix-eyebrow-right {
+.phase-x1d .brow-r-x1 {
     transform: translateY(10px) rotate(16deg);
 }
-.matrix-phase-pressure .matrix-eye {
+.phase-x1d .eye-x1 {
     box-shadow: 0 0 30px #00FF41, inset 0 0 22px rgba(0, 255, 65, 0.28);
     transform: translateY(-1px);
 }
-.matrix-phase-pressure .matrix-head {
+.phase-x1d .head-x1 {
     transform: scale(1.01);
     box-shadow: 0 0 50px rgba(0, 255, 65, 0.34), inset 0 0 34px rgba(0, 255, 65, 0.24);
 }
-.matrix-phase-instability {
-    animation: matrixGlitch 0.32s steps(2, end) infinite;
+.phase-x1e {
+    animation: glitchX1 0.32s steps(2, end) infinite;
 }
-.matrix-phase-instability .matrix-head {
+.phase-x1e .head-x1 {
     border-color: rgba(0, 255, 65, 0.95);
     box-shadow: 0 0 56px rgba(0, 255, 65, 0.42), inset 0 0 38px rgba(0, 255, 65, 0.28);
 }
-.matrix-phase-instability .matrix-eye:first-child {
+.phase-x1e .eye-x1:first-child {
     transform: translateX(-4px) scaleX(0.98);
 }
-.matrix-phase-instability .matrix-eye:last-child {
+.phase-x1e .eye-x1:last-child {
     transform: translateX(3px) scaleX(1.02);
 }
-.matrix-phase-release .matrix-eye {
+.phase-x1f .eye-x1 {
     box-shadow: 0 0 18px #00FF41, inset 0 0 13px rgba(0, 255, 65, 0.2);
 }
-.matrix-phase-release .matrix-head {
+.phase-x1f .head-x1 {
     border-color: rgba(0, 255, 65, 0.78);
     box-shadow: 0 0 28px rgba(0, 255, 65, 0.25), inset 0 0 18px rgba(0, 255, 65, 0.18);
 }
-.matrix-finale .matrix-head {
-    animation: matrixFinaleFlash 420ms ease-out 1;
+.finale-x1 .head-x1 {
+    animation: finaleFlashX1 420ms ease-out 1;
 }
-.matrix-finale .matrix-eye {
+.finale-x1 .eye-x1 {
     animation-duration: 2.1s;
     box-shadow: 0 0 34px #00FF41, inset 0 0 28px rgba(0, 255, 65, 0.34);
 }
-.matrix-finale + .matrix-timer {
+.finale-x1 + .timer-x1 {
     color: #ffffff;
-    animation: matrixFinaleTimer 420ms ease-out 1;
+    animation: finaleTimerX1 420ms ease-out 1;
     text-shadow: 0 0 16px #00FF41, 0 0 4px #000;
 }
-.matrix-face.matrix-bomb-mode .matrix-head {
-    animation: matrixBombShake 90ms linear infinite;
+.face-x1.bomb-mode-x1 .head-x1 {
+    animation: bombShakeX1 90ms linear infinite;
     border-color: rgba(0, 255, 65, calc(0.75 + var(--bomb-intensity, 0) * 0.24));
 }
-.matrix-face.matrix-bomb-mode + .matrix-timer {
-    animation: matrixTimerPulse 0.56s ease-in-out infinite;
+.face-x1.bomb-mode-x1 + .timer-x1 {
+    animation: timerPulseX1 0.56s ease-in-out infinite;
 }
-.matrix-face.matrix-bomb-peak .matrix-head {
+.face-x1.bomb-peak-x1 .head-x1 {
     animation-duration: 54ms;
     box-shadow: 0 0 74px rgba(0, 255, 65, 0.54), inset 0 0 44px rgba(0, 255, 65, 0.32);
 }
-.matrix-face.matrix-bomb-exploded .matrix-head {
+.face-x1.bomb-exploded-x1 .head-x1 {
     opacity: 0;
     transform: scale(0.5);
     transition: opacity 280ms ease, transform 320ms ease;
 }
-.matrix-rain-overlay.matrix-final-sequence .matrix-face {
+.overlay-x1.final-sequence-x1 .face-x1 {
     pointer-events: none;
 }
-@keyframes eyeBlink {
+@keyframes blinkX1 {
     0%, 10%, 100% {
         transform: scaleY(1);
     }
@@ -297,7 +297,7 @@
         transform: scaleY(0.1);
     }
 }
-@keyframes pupilScan {
+@keyframes scanX1 {
     0% {
         transform: translate(0, 0);
     }
@@ -314,7 +314,7 @@
         transform: translate(0, 0);
     }
 }
-@keyframes matrixTimerPulse {
+@keyframes timerPulseX1 {
     0%,
     100% {
         opacity: 0.9;
@@ -327,7 +327,7 @@
         text-shadow: 0 0 14px #00FF41, 0 0 6px #000;
     }
 }
-@keyframes matrixGlitch {
+@keyframes glitchX1 {
     0%,
     100% {
         transform: translate(-50%, -50%);
@@ -346,7 +346,7 @@
         filter: hue-rotate(-8deg);
     }
 }
-@keyframes matrixFinaleFlash {
+@keyframes finaleFlashX1 {
     0% {
         transform: scale(1.01);
         box-shadow: 0 0 50px rgba(0, 255, 65, 0.36), inset 0 0 34px rgba(0, 255, 65, 0.24);
@@ -360,7 +360,7 @@
         box-shadow: 0 0 58px rgba(0, 255, 65, 0.44), inset 0 0 38px rgba(0, 255, 65, 0.3);
     }
 }
-@keyframes matrixFinaleTimer {
+@keyframes finaleTimerX1 {
     0% {
         transform: scale(1);
         opacity: 0.8;
@@ -374,7 +374,7 @@
         opacity: 1;
     }
 }
-@keyframes matrixBombShake {
+@keyframes bombShakeX1 {
     0% {
         transform: translate(calc(var(--bomb-intensity, 0) * -4px), calc(var(--bomb-intensity, 0) * 2px)) rotate(calc(var(--bomb-intensity, 0) * -0.8deg)) scale(calc(1 + var(--bomb-intensity, 0) * 0.02));
     }
@@ -391,7 +391,7 @@
         transform: translate(calc(var(--bomb-intensity, 0) * -4px), calc(var(--bomb-intensity, 0) * 3px)) rotate(calc(var(--bomb-intensity, 0) * -0.7deg)) scale(calc(1 + var(--bomb-intensity, 0) * 0.02));
     }
 }
-@keyframes matrixCaptionExplode {
+@keyframes captionExplodeX1 {
     0% {
         opacity: 1;
         transform: translateY(0) scale(1);
