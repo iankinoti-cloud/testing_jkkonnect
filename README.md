@@ -56,7 +56,7 @@ aboutus.html        — About page
 contactus.html      — Contact page
 main.js             — All interactive features and animations
 utils.js            — Shared pure utility functions
-style.css           — Styles for the entire site including the matrix overlay
+style.css           — Styles for the entire site.
 tests.js            — Zero-dependency Node.js unit test suite
 tests.html          — Browser-runnable test page
 ```
