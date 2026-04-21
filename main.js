@@ -163,44 +163,44 @@ function initSessionModal() {
     }
 
     if (cooldownRemainingMs > 0) {
+      //modal and show feature animation
       overlay.style.display = 'none';
-      x1Handler(cooldownRemainingMs);
+      showFeatureRain(cooldownRemainingMs);
       return;
     }
 
-   
-    // ...existing code...
-    function x1Handler(durationMs) {
-      let overlayX1 = document.createElement('div');
-      overlayX1.className = 'overlay-x1';
-      overlayX1.innerHTML = `<canvas id="canvas-x1" style="display:block;width:100vw;height:100vh;"></canvas><div class="face-x1"><div class="head-x1"><svg class="brows-x1" viewBox="0 0 300 80" xmlns="http://www.w3.org/2000/svg"><path class="brow-l-x1" d="M 50 50 Q 80 30 110 50" stroke="#00FF41" stroke-width="4" fill="none" stroke-linecap="round"/><path class="brow-r-x1" d="M 190 50 Q 220 30 250 50" stroke="#00FF41" stroke-width="4" fill="none" stroke-linecap="round"/></svg><div class="eyes-x1"><div class="eye-x1"><div class="pupil-x1"></div></div><div class="eye-x1"><div class="pupil-x1"></div></div></div><div class="nose-x1"></div><svg class="mouth-x1" viewBox="0 0 100 50" xmlns="http://www.w3.org/2000/svg"><path d="M 10 30 Q 50 50 90 30" stroke="#00FF41" stroke-width="3" fill="none" stroke-linecap="round"/></svg></div><p class="caption-x1">KINOTI PRESENTS TO YOU:</p></div><div class="timer-x1"></div>`;
-      document.body.appendChild(overlayX1);
+    //  animation
+    function showFeatureRain(durationMs) {
+      let featureOverlay = document.createElement('div');
+      featureOverlay.className = 'matrix-rain-overlay';
+      featureOverlay.innerHTML = `<canvas id="feature-rain-canvas" style="display:block;width:100vw;height:100vh;"></canvas><div class="matrix-face"><div class="matrix-head"><svg class="matrix-eyebrows" viewBox="0 0 300 80" xmlns="http://www.w3.org/2000/svg"><path class="matrix-eyebrow-left" d="M 50 50 Q 80 30 110 50" stroke="#00FF41" stroke-width="4" fill="none" stroke-linecap="round"/><path class="matrix-eyebrow-right" d="M 190 50 Q 220 30 250 50" stroke="#00FF41" stroke-width="4" fill="none" stroke-linecap="round"/></svg><div class="matrix-eyes-container"><div class="matrix-eye"><div class="matrix-pupil"></div></div><div class="matrix-eye"><div class="matrix-pupil"></div></div></div><div class="matrix-nose"></div><svg class="matrix-mouth" viewBox="0 0 100 50" xmlns="http://www.w3.org/2000/svg"><path d="M 10 30 Q 50 50 90 30" stroke="#00FF41" stroke-width="3" fill="none" stroke-linecap="round"/></svg></div><p class="matrix-intro-caption">KINOTI PRESENTS TO YOU:</p></div><div class="matrix-timer"></div>`;
+      document.body.appendChild(featureOverlay);
 
-      const canvas = overlayX1.querySelector('#canvas-x1');
-      const timerDiv = overlayX1.querySelector('.timer-x1');
-      const faceX1 = overlayX1.querySelector('.face-x1');
-      const headX1 = overlayX1.querySelector('.head-x1');
-      const captionX1 = overlayX1.querySelector('.caption-x1');
-      const eyesX1 = overlayX1.querySelector('.eyes-x1');
+      const canvas = featureOverlay.querySelector('#feature-rain-canvas');
+      const timerDiv = featureOverlay.querySelector('.matrix-timer');
+      const matrixFace = featureOverlay.querySelector('.matrix-face');
+      const matrixHead = featureOverlay.querySelector('.matrix-head');
+      const introCaption = featureOverlay.querySelector('.matrix-intro-caption');
+      const eyesContainer = featureOverlay.querySelector('.matrix-eyes-container');
       const ctx = canvas.getContext('2d');
       const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-      if (captionX1) {
-        const captionText = captionX1.textContent || '';
-        captionX1.textContent = '';
-        captionX1.setAttribute('aria-label', captionText);
+      if (introCaption) {
+        const captionText = introCaption.textContent || '';
+        introCaption.textContent = '';
+        introCaption.setAttribute('aria-label', captionText);
 
         Array.from(captionText).forEach((char, index) => {
           const span = document.createElement('span');
           if (char === ' ') {
-            span.className = 'gap-x1';
+            span.className = 'matrix-caption-gap';
             span.innerHTML = '&nbsp;';
           } else {
-            span.className = 'letter-x1';
+            span.className = 'matrix-caption-letter';
             span.style.setProperty('--letter-index', String(index));
             span.textContent = char;
           }
-          captionX1.appendChild(span);
+          introCaption.appendChild(span);
         });
       }
 
@@ -210,13 +210,13 @@ function initSessionModal() {
       canvas.height = height;
 
       let fontSize = 18;
-      const techFontX1 = "'Share Tech Mono', 'IBM Plex Mono', monospace";
+      const matrixTechFont = "'Share Tech Mono', 'IBM Plex Mono', monospace";
       let columns = Math.floor(width / fontSize);
       let drops = Array(columns).fill(1);
-      let fadeX1 = 0.08;
-      let resetChanceX1 = 0.975;
-      let fadeTargetX1 = 0.08;
-      let resetChanceTargetX1 = 0.975;
+      let rainFade = 0.08;
+      let rainResetChance = 0.975;
+      let rainFadeTarget = 0.08;
+      let rainResetChanceTarget = 0.975;
       let didFinale = false;
       let finalSequenceActive = false;
       let finalPhase = 'idle';
@@ -234,7 +234,7 @@ function initSessionModal() {
       }
 
       function onPointerMove(event) {
-        if (prefersReducedMotion || !eyesX1) return;
+        if (prefersReducedMotion || !eyesContainer) return;
         const centerX = width / 2;
         const centerY = height / 2;
         const deltaX = (event.clientX - centerX) / centerX;
@@ -244,16 +244,16 @@ function initSessionModal() {
       }
 
       function animateGaze() {
-        if (!eyesX1) return;
+        if (!eyesContainer) return;
         gazeCurrentX += (gazeTargetX - gazeCurrentX) * 0.12;
         gazeCurrentY += (gazeTargetY - gazeCurrentY) * 0.12;
-        eyesX1.style.transform = `translate(${gazeCurrentX.toFixed(2)}px, ${gazeCurrentY.toFixed(2)}px)`;
+        eyesContainer.style.transform = `translate(${gazeCurrentX.toFixed(2)}px, ${gazeCurrentY.toFixed(2)}px)`;
         gazeRaf = window.requestAnimationFrame(animateGaze);
       }
 
-      if (!prefersReducedMotion && eyesX1) {
-        overlayX1.addEventListener('pointermove', onPointerMove);
-        overlayX1.addEventListener('pointerleave', () => {
+      if (!prefersReducedMotion && eyesContainer) {
+        featureOverlay.addEventListener('pointermove', onPointerMove);
+        featureOverlay.addEventListener('pointerleave', () => {
           gazeTargetX = 0;
           gazeTargetY = 0;
         });
@@ -261,12 +261,12 @@ function initSessionModal() {
       }
 
       const phaseClassNames = [
-        'phase-x1a',
-        'phase-x1b',
-        'phase-x1c',
-        'phase-x1d',
-        'phase-x1e',
-        'phase-x1f'
+        'matrix-phase-detection',
+        'matrix-phase-recognition',
+        'matrix-phase-interrogation',
+        'matrix-phase-pressure',
+        'matrix-phase-instability',
+        'matrix-phase-release'
       ];
 
       const totalSeconds = Math.max(1, Math.ceil(durationMs / 1000));
@@ -295,7 +295,7 @@ function initSessionModal() {
         offCtx.fillStyle = '#00FF41';
         offCtx.textAlign = 'center';
         offCtx.textBaseline = 'middle';
-        offCtx.font = `700 ${fontSizePx}px ${techFontX1}`;
+        offCtx.font = `700 ${fontSizePx}px ${matrixTechFont}`;
         offCtx.fillText(label, width / 2, height / 2);
 
         const imageData = offCtx.getImageData(0, 0, width, height).data;
